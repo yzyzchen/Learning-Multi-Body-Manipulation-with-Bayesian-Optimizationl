@@ -14,7 +14,7 @@ DATA_DIR = os.path.join(PROJECT_ROOT, 'model')
 ASSETS_DIR = os.path.join(PROJECT_ROOT, 'assets')
 
 # 环境配置
-from env.panda_pushing_env import PandaPushingEnv, TARGET_POSE_FREE, BOX_SIZE
+from env.panda_pushing_env import PandaPushingEnv, TARGET_POSE_FREE, DISK_SIZE
 from model.learning_state_dynamics import (
     collect_data_random,
     process_data_multiple_step,
@@ -188,8 +188,8 @@ class MultiStepTrainer:
         # 验证结果
         end_state = env.get_state()
         goal_distance = np.linalg.norm(end_state[:2] - TARGET_POSE_FREE[:2])
-        print(f"\n目标距离: {goal_distance:.4f} (阈值: {BOX_SIZE})")
-        print(f"目标达成: {goal_distance < BOX_SIZE}")
+        print(f"\n目标距离: {goal_distance:.4f} (阈值: {DISK_SIZE})")
+        print(f"目标达成: {goal_distance < DISK_SIZE}")
 
 if __name__ == "__main__":
     # 训练配置

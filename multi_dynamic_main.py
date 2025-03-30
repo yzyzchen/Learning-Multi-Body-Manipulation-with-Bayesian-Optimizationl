@@ -115,8 +115,8 @@ def run_demo_with_model(config):
         target_pose = env.target_state
         distance = np.linalg.norm(end_pose[:2] - target_pose[:2])
         print(f"最终位置: {end_pose[:2]}, 目标位置: {target_pose[:2]}")
-        from env.panda_pushing_env import BOX_SIZE
-        print(f"距离目标: {distance:.4f} (要求 < {BOX_SIZE})")
+        from env.panda_pushing_env import DISK_SIZE
+        print(f"距离目标: {distance:.4f} (要求 < {DISK_SIZE})")
 
 if __name__ == "__main__":
     # 主参数解析器
@@ -127,8 +127,6 @@ if __name__ == "__main__":
     
     subparsers = parser.add_subparsers(dest='command', required=True)
     
-
-
     # 数据收集模式
     collect_parser = subparsers.add_parser('collect', help="数据收集")
     collect_parser.add_argument('--num_traj', type=int, default=100,

@@ -18,7 +18,7 @@ project_root = os.path.dirname(os.path.dirname(current_file_path))
 assets_dir = os.path.join(project_root, 'assets')
 
 
-BOX_SIZE = 0.1
+DISK_SIZE = 0.02
 
 TARGET_POSE_FREE = np.array([0.8, 0., 0.])
 TARGET_POSE_OBSTACLES = np.array([0.8, -0.1, 0.])
@@ -46,19 +46,21 @@ class PandaPushingEnv(gym.Env):
 
         self.pandaUid = None  # panda robot arm
         self.tableUid = None  # Table where to push
+        self.intermidiateUid = None  # Intermidiate object
         self.objectUid = None  # Pushing object
         self.targetUid = None  # Target object
         self.obstacleUid = None  # Obstacle object
 
-        self.object_file_path = os.path.join(assets_dir, "objects/cube/cube.urdf")
-        self.target_file_path = os.path.join(assets_dir, "objects/cube/cube.urdf")
+        self.intermidiate_file_path = os.path.join(assets_dir, "objects/disk/disk.urdf")
+        self.object_file_path = os.path.join(assets_dir, "objects/disk/disk.urdf")
+        self.target_file_path = os.path.join(assets_dir, "objects/disk/disk.urdf")
         self.obstacle_file_path = os.path.join(assets_dir, "objects/obstacle/obstacle.urdf")
 
-        # self.init_panda_joint_state = [-0.028, 0.853, -0.016, -1.547, 0.017, 2.4, 2.305, 0., 0.]
         self.init_panda_joint_state = np.array([0., 0., 0., -np.pi * 0.5, 0., np.pi * 0.5, 0.])
 
-        self.object_start_pose = None
-        self.object_target_pose = None
+        self.object_start_pose = np.array([0.8, 0., 0., 0., 0., 0., 1.])
+        self.intermidiate_start_pose = np.array([0.4, 0., 0., 0., 0., 0., 1.])
+        self.object_target_pose = np.array([1.2, 0., 0., 0., 0., 0., 1.])
 
         self.left_finger_idx = 9
         self.right_finger_idx = 10
@@ -79,28 +81,25 @@ class PandaPushingEnv(gym.Env):
         self.is_render_on = True
 
         # Render camera setting
-        # self.camera_height = 84
-        # self.camera_width = 84
         self.camera_height = camera_heigh
         self.camera_width = camera_width
 
         p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40,
                                      cameraTargetPosition=[0.55, -0.35, 0.2])
 
-        self.block_size = BOX_SIZE
+        self.disk_size = DISK_SIZE
 
         # Motion parameter
-        self.lower_z = 0.02
+        self.lower_z = 0.01
         self.raise_z = 0.3
-        # self.push_length = 0.02
         self.push_length = 0.1
 
         self.space_limits = [np.array([0.05, -0.35]), np.array([.8, 0.35])]  # xy limits
         self.observation_space = spaces.Box(low=np.array([self.space_limits[0][0], self.space_limits[0][1], -np.pi], dtype=np.float32),
                                             high=np.array([self.space_limits[1][0], self.space_limits[1][0],
                                                            np.pi], dtype=np.float32)) 
-        self.action_space = spaces.Box(low=np.array([-1, -np.pi * 0.5, 0], dtype=np.float32),
-                                       high=np.array([1, np.pi * 0.5, 1], dtype=np.float32))  #
+        self.action_space = spaces.Box(low=np.array([-1, -np.pi / 3, 0], dtype=np.float32),
+                                       high=np.array([1, np.pi / 3, 1], dtype=np.float32))  #
 
         
         self.target_state = TARGET_POSE_FREE
@@ -125,6 +124,7 @@ class PandaPushingEnv(gym.Env):
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
 
         # Load objects
+        self.intermidiateUid = p.loadURDF(self.intermidiate_file_path, basePosition=self.intermidiate_start_pose[:3], baseOrientation=self.intermidiate_start_pose[3:], globalScaling=1.)
         self.objectUid = p.loadURDF(self.object_file_path, basePosition=self.object_start_pose[:3], baseOrientation=self.object_start_pose[3:], globalScaling=1.)
 
         # p.changeDynamics(self.objectUid, -1, 2)
@@ -152,7 +152,7 @@ class PandaPushingEnv(gym.Env):
         p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING)
         # Convert the action values to the true ranges
         push_location_fraction, push_angle, push_length_fraction = action[0], action[1], action[2]
-        push_location = push_location_fraction * self.block_size * 0.5 * 0.95 # we add some small 5% gap so we make sure we do not surpass the border
+        push_location = push_location_fraction * self.disk_size * 0.5 * 0.95 # we add some small 5% gap so we make sure we do not surpass the border
         push_length = push_length_fraction * self.push_length
         # Perform the action
         self.push(push_location, push_angle, push_length=push_length)
@@ -204,20 +204,20 @@ class PandaPushingEnv(gym.Env):
         self._move_ee_trajectory(target_pos, step_size=step_size)
 
     def push(self, push_location, push_angle, push_length=None):
-        current_block_pose = self.get_object_pos_planar()
-        theta = current_block_pose[-1]
+        current_intermidiate_block_pose = self.get_intermidiate_pos_planar()
+        theta = current_intermidiate_block_pose[-1]
         if not self.render_non_push_motions:
             self.is_render_on = False
         self.raise_up()
         start_gap = 0.1
         start_xy_bf = np.array([-start_gap, push_location])  # in block frame
         w_R_bf = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
-        start_xy_wf = w_R_bf @ start_xy_bf + current_block_pose[:2]  # in world frame
+        start_xy_wf = w_R_bf @ start_xy_bf + current_intermidiate_block_pose[:2]  # in world frame
         # set xy
         self.set_planar_xy(start_xy_wf, theta=theta)
         # set theta
         self.lower_down()
-        self.planar_push(theta, push_length=start_gap-0.015-.5*self.block_size, step_size=0.005) # push until barely touch the block
+        self.planar_push(theta, push_length=start_gap-0.015-.5*self.disk_size, step_size=0.005) # push until barely touch the block
         self.is_render_on = True
         self.planar_push(push_angle + theta, push_length=push_length, step_size=0.005)
 
@@ -267,6 +267,10 @@ class PandaPushingEnv(gym.Env):
     def get_state(self):
         state = self.get_object_pos_planar().astype(np.float32)
         return state
+    
+    def get_intermidiate_state(self):
+        state = self.get_intermidiate_pos_planar().astype(np.float32)
+        return state
 
     def get_object_pose(self):
         pos, quat = p.getBasePositionAndOrientation(self.objectUid)
@@ -274,9 +278,21 @@ class PandaPushingEnv(gym.Env):
         quat = np.asarray(quat)
         object_pose = np.concatenate([pos, quat])
         return object_pose
+    
+    def get_intermidiate_pose(self):
+        pos, quat = p.getBasePositionAndOrientation(self.intermidiateUid)
+        pos = np.asarray(pos)
+        quat = np.asarray(quat)
+        object_pose = np.concatenate([pos, quat])
+        return object_pose
 
     def get_object_pos_planar(self):
         object_pos_wf = self.get_object_pose()  # in world frame
+        object_pos_planar = self._world_pose_to_planar_pose(object_pos_wf)
+        return object_pos_planar
+    
+    def get_intermidiate_pos_planar(self):
+        object_pos_wf = self.get_intermidiate_pose()  # in world frame
         object_pos_planar = self._world_pose_to_planar_pose(object_pos_wf)
         return object_pos_planar
 
@@ -359,14 +375,20 @@ class PandaPushingEnv(gym.Env):
         # self.object_start_pos = self.cube_pos_distribution.sample()
         if self.include_obstacle:
             # with obstacles
-            object_start_pose_planar = np.array([0.4, 0., -np.pi * 0.2])
+            # object_start_pose_planar = np.array([0.4, 0., -np.pi * 0.2])
+            object_start_pose_planar = np.array([0.6, 0., 0.])
+            intermidiate_start_pose_planar = np.array([0.4, 0., 0.])
             object_target_pose_planar = TARGET_POSE_OBSTACLES
         else:
             # free of obstacles
-            object_start_pose_planar = np.array([0.4, 0., np.pi * 0.2])
+            # object_start_pose_planar = np.array([0.4, 0., np.pi * 0.2])
+            object_start_pose_planar = np.array([0.6, 0., 0.])
+            intermidiate_start_pose_planar = np.array([0.4, 0., 0.])
             object_target_pose_planar = TARGET_POSE_FREE
         self.object_start_pose = self._planar_pose_to_world_pose(
             object_start_pose_planar)  # self.cube_pos_distribution.sample()
+        self.intermidate_start_pose = self._planar_pose_to_world_pose(
+            object_start_pose_planar)
         self.object_target_pose = self._planar_pose_to_world_pose(object_target_pose_planar)
 
     def _planar_pose_to_world_pose(self, planar_pose):
@@ -427,8 +449,6 @@ def quaternion_matrix(quaternion):
         (q[0, 2] - q[1, 3], q[1, 2] + q[0, 3], 1.0 - q[0, 0] - q[1, 1], 0.0),
         (0.0, 0.0, 0.0, 1.0)
     ), dtype=np.float64)
-
-
 
 
 
