@@ -287,7 +287,6 @@ class SE2PoseLoss(nn.Module):
 
         se2_pose_loss = mse_x + mse_y + rg * mse_theta
 
-
         # ---
         return se2_pose_loss
 

@@ -18,9 +18,9 @@ project_root = os.path.dirname(os.path.dirname(current_file_path))
 assets_dir = os.path.join(project_root, 'assets')
 
 
-DISK_SIZE = 0.02
+DISK_SIZE = 0.16
 
-TARGET_POSE_FREE = np.array([0.8, 0., 0.])
+TARGET_POSE_FREE = np.array([1.0, 0., 0.])
 TARGET_POSE_OBSTACLES = np.array([0.8, -0.1, 0.])
 OBSTACLE_CENTRE = np.array([0.6, 0.2, 0.])
 OBSTACLE_HALFDIMS = np.array([0.05, 0.25, 0.05])

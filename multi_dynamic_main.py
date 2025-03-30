@@ -1,6 +1,6 @@
 """
-multi_dynamic_main.py - 主运行入口
-支持 collect/train/demo 三种模式
+multi_dynamic_main.py - Main script for multi-body dynamics simulation
+Support collect/train/demo modes
 """
 import os
 import argparse
@@ -11,11 +11,11 @@ import torch
 from env.panda_pushing_env import PandaPushingEnv
 
 def collect_data(config):
-    """独立数据收集模式"""
-    print("\n=== 数据收集模式 ===")
+    """Collecting data mode"""
+    print("\n=== collecting data mode ===")
     from model.learning_state_dynamics import collect_data_random
     
-    # 确保数据目录存在
+    # Ensure the save path exists
     os.makedirs(os.path.dirname(config['save_path']), exist_ok=True)
     
     env = PandaPushingEnv()
@@ -25,39 +25,39 @@ def collect_data(config):
         trajectory_length=config['trajectory_length']
     )
     np.save(config['save_path'], data)
-    print(f"成功收集 {len(data)} 条轨迹，保存至 {config['save_path']}")
+    print(f"Successfully collected {len(data)} trajectories，saved to {config['save_path']}")
 
 def train_model(config):
-    """模型训练模式"""
-    print("\n=== 模型训练模式 ===")
+    """Model training mode"""
+    print("\n=== model training mode ===")
     from train_multi_step import MultiStepTrainer, DEFAULT_CONFIG
     
-    # 合并默认配置和自定义配置
+    # Merge the default configuration with the user configuration
     full_config = DEFAULT_CONFIG.copy()
     full_config.update(config)
     
-    # 初始化训练器
+    # Initialize the trainer
     trainer = MultiStepTrainer(full_config)
     
-    # 加载已有数据或重新收集
+    # Load the existing data or collect new data
     if os.path.exists(full_config['data_save_path']):
-        print("加载已有数据集")
+        print("Load the existing data")
         data = np.load(full_config['data_save_path'], allow_pickle=True)
     else:
         data = trainer.collect_data()
     
-    # 执行完整训练流程
+    # Execute the training process
     train_loader, val_loader = trainer.prepare_loaders(data)
     trainer.train_model(train_loader, val_loader)
     trainer.evaluate_model()
 
 def run_demo_with_model(config):
-    """加载训练模型进行演示"""
-    print("\n=== 模型演示模式 ===")
+    """Load the model and run the demo"""
+    print("\n=== Load the model and run the demo ===")
     
-    # 初始化环境和模型
+    # Initialize the model and environment
     env = PandaPushingEnv(
-        visualizer=True,  # 必须启用渲染
+        visualizer=True, 
         render_every_n_steps=1,
         debug=config['debug']
     )
@@ -67,11 +67,11 @@ def run_demo_with_model(config):
         action_dim=env.action_space.shape[0]
     )
     
-    # 加载训练好的模型
+    # Load the trained model
     model.load_state_dict(torch.load(config['model_save_path'], map_location='cpu'))
     model.eval()
     
-    # 初始化控制器
+    # Initialize the controller
     from model.learning_state_dynamics import PushingController, free_pushing_cost_function
     controller = PushingController(
         env=env,
@@ -87,17 +87,17 @@ def run_demo_with_model(config):
         
         with tqdm(total=config['steps'], desc=f"Episode {episode+1}") as pbar:
             for step in range(config['steps']):
-                # 生成控制动作
+                # Generate action
                 action = controller.control(state)
                 
-                # 执行动作
+                # Execute the action
                 next_state, reward, done, _ = env.step(action)
                 
-                # 更新状态
+                # Update the state and reward
                 state = next_state
                 total_reward += reward
                 
-                # 更新进度条
+                # Update the progress bar
                 pbar.update(1)
                 pbar.set_postfix({
                     "reward": f"{total_reward:.2f}",
@@ -107,21 +107,21 @@ def run_demo_with_model(config):
                 })
                 
                 if done:
-                    print(f"\n目标达成! 累计奖励: {total_reward:.2f}")
+                    print(f"\nTarget achieved! Accumulated reward: {total_reward:.2f}")
                     break
 
-        # 显示最终状态
+        # Display the final state and distance to the target
         end_pose = env.get_state()
         target_pose = env.target_state
         distance = np.linalg.norm(end_pose[:2] - target_pose[:2])
-        print(f"最终位置: {end_pose[:2]}, 目标位置: {target_pose[:2]}")
+        print(f"Final Position: {end_pose[:2]}, Target Position: {target_pose[:2]}")
         from env.panda_pushing_env import DISK_SIZE
-        print(f"距离目标: {distance:.4f} (要求 < {DISK_SIZE})")
+        print(f"Final Distance: {distance:.4f} (Requirement < {DISK_SIZE})")
 
 if __name__ == "__main__":
     # 主参数解析器
     parser = argparse.ArgumentParser(
-        description="多体动力学系统控制平台",
+        description="Multi-body dynamics simulation",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     
@@ -149,18 +149,18 @@ if __name__ == "__main__":
                             help="模型保存路径")
 
     # 在main的parser中添加
-    demo_model_parser = subparsers.add_parser('demo_model', help="加载模型进行演示")
+    demo_model_parser = subparsers.add_parser('demo_model', help="Load the model and run the demo")
     demo_model_parser.add_argument('--model_path', type=str, 
                                 default='model/trained_model/model.pt',
-                                help="模型路径")
+                                help="model path")
     demo_model_parser.add_argument('--debug', action='store_true',
-                                help="启用调试模式")
+                                help="start the debug mode")
     demo_model_parser.add_argument('--episodes', type=int, default=1,
-                                help="演示回合数")
+                                help="demo episodes")
     demo_model_parser.add_argument('--steps', type=int, default=50,
-                             help="最大步数")
+                             help="maximum steps per episode")
     demo_model_parser.add_argument('--model_save', type=str, default='model/trained_model/model.pt',
-                             help="模型保存路径")
+                             help="model save path")
 
     args = parser.parse_args()
     # 模式分发

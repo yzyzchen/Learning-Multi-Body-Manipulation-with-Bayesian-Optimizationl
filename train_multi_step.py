@@ -7,6 +7,7 @@ import torch
 import matplotlib.pyplot as plt
 from tqdm.auto import tqdm
 from torch import optim
+import torch.nn as nn
 
 # 项目路径配置
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -45,20 +46,20 @@ class MultiStepTrainer:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
     def collect_data(self):
-        """数据收集阶段"""
-        print("\n=== 数据收集阶段 ===")
+        """Data Collection Stage"""
+        print("\n=== Data Collection Stage ===")
         data = collect_data_random(
             self.env,
             num_trajectories=self.config['num_trajectories'],
             trajectory_length=self.config['trajectory_length']
         )
-        print(f"收集到 {len(data)} 条轨迹")
+        print(f"Collected {len(data)} trajectories")
         np.save(self.config['data_save_path'], data)
         return data
 
     def prepare_loaders(self, data):
-        """数据处理阶段"""
-        print("\n=== 数据处理阶段 ===")
+        """Date Processing Stage"""
+        print("\n=== Date Processing Stage ===")
         return process_data_multiple_step(
             data,
             batch_size=self.config['batch_size'],
@@ -66,15 +67,16 @@ class MultiStepTrainer:
         )
 
     def train_model(self, train_loader, val_loader):
-        """模型训练阶段"""
-        print("\n=== 模型训练阶段 ===")
+        """Model Training Process"""
+        print("\n=== Model Training Process ===")
         model = ResidualDynamicsModel(
             state_dim=self.env.observation_space.shape[0],
             action_dim=self.env.action_space.shape[0]
         ).to(self.device)
 
         criterion = MultiStepLoss(
-            SE2PoseLoss(block_width=0.1, block_length=0.1),
+            nn.MSELoss(),
+            # SE2PoseLoss(block_width=0.1, block_length=0.1),
             discount=self.config['discount']
         )
         optimizer = optim.Adam(model.parameters(), lr=self.config['lr'])
@@ -151,8 +153,8 @@ class MultiStepTrainer:
         plt.close()
 
     def evaluate_model(self):
-        """模型验证"""
-        print("\n=== 模型验证阶段 ===")
+        """Model Validation Stage"""
+        print("\n=== Model Validation Stage ===")
         env = PandaPushingEnv(render_non_push_motions=False)
         
         # 加载模型
