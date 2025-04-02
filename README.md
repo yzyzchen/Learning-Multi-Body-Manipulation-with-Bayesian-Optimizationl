@@ -8,6 +8,6 @@
 
 ![Demo](assets/1.gif)
 
-![Dynamics Learning](https://img.shields.io/badge/multi-body-dynamics-orange)
+![Dynamics Learning](https://img.shields.io/badge/multi body-dynamics-orange)
 ![Primary language](https://img.shields.io/badge/Python-100.0%25-red)
 ![License](https://img.shields.io/badge/license-MIT-green)
