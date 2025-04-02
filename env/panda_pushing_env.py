@@ -21,8 +21,8 @@ assets_dir = os.path.join(project_root, 'assets')
 BOX_SIZE = 0.1
 DISK_SIZE = 0.12
 
-TARGET_POSE_FREE = np.array([0.8, 0., 0.])
-TARGET_POSE_OBSTACLES = np.array([0.8, -0.1, 0.])
+TARGET_POSE_FREE = np.array([0.9, 0., 0.])
+TARGET_POSE_OBSTACLES = np.array([0.9, -0.1, 0.])
 OBSTACLE_CENTRE = np.array([0.6, 0.2, 0.])
 OBSTACLE_HALFDIMS = np.array([0.05, 0.25, 0.05])
 
@@ -127,8 +127,13 @@ class PandaPushingEnv(gym.Env):
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
 
         # Load objects
-        self.intermidiateUid = p.loadURDF(self.intermidiate_file_path, basePosition=self.intermidiate_start_pose[:3], baseOrientation=self.intermidiate_start_pose[3:])
-        self.objectUid = p.loadURDF(self.object_file_path, basePosition=self.object_start_pose[:3], baseOrientation=self.object_start_pose[3:])
+        self.intermidiateUid = p.loadURDF(self.intermidiate_file_path,
+                                        basePosition=self.intermidiate_start_pose[:3],
+                                        baseOrientation=self.intermidiate_start_pose[3:])
+
+        self.objectUid = p.loadURDF(self.object_file_path,
+                                    basePosition=self.object_start_pose[:3],
+                                    baseOrientation=self.object_start_pose[3:])
 
         # p.changeDynamics(self.objectUid, -1, 2)
         self.targetUid = p.loadURDF(self.target_file_path, basePosition=self.object_target_pose[:3], baseOrientation=self.object_target_pose[3:], globalScaling=1., useFixedBase=True)
@@ -220,7 +225,7 @@ class PandaPushingEnv(gym.Env):
         self._move_ee_trajectory(target_pos, step_size=step_size)
 
     def push(self, push_location, push_angle, push_length=None):
-        current_block_pose = self.get_object_pos_planar()
+        current_block_pose = self.get_intermidiate_pos_planar()
         theta = current_block_pose[-1]
         if not self.render_non_push_motions:
             self.is_render_on = False
@@ -236,6 +241,16 @@ class PandaPushingEnv(gym.Env):
         self.planar_push(theta, push_length=start_gap-0.015-.5*self.block_size, step_size=0.005) # push until barely touch the block
         self.is_render_on = True
         self.planar_push(push_angle + theta, push_length=push_length, step_size=0.005)
+
+    def get_intermidiate_pose(self):
+        pos, quat = p.getBasePositionAndOrientation(self.intermidiateUid)
+        pos = np.asarray(pos)
+        quat = np.asarray(quat)
+        return np.concatenate([pos, quat])
+
+    def get_intermidiate_pos_planar(self):
+        inter_pose = self.get_intermidiate_pose()
+        return self._world_pose_to_planar_pose(inter_pose)
 
     def _move_ee_trajectory(self, target_ee_pos, step_size=0.001):
         # interpolate and do ik along the trajectory to set the ee position in many places
@@ -376,17 +391,18 @@ class PandaPushingEnv(gym.Env):
         else:
             object_target_pose_planar = TARGET_POSE_FREE
 
-        # Ensure object starts on the left, both disks in contact
-        radius = self.disk_size/2
-        center_x = 0.4
+        radius = self.disk_size / 2
+        center_x = 0.5
         y = 0.0
         theta = 0.0
+        # intermidiate_disk on the LEFT (pushed by robot)
+        intermidiate_pose_planar = np.array([center_x - radius, y, theta])
 
-        object_pose_planar = np.array([center_x - radius, y, theta])
-        intermidiate_pose_planar = np.array([center_x + radius, y, theta])
+        # object_disk on the RIGHT (goal is to reach the target)
+        object_pose_planar = np.array([center_x + radius, y, theta])
 
-        self.object_start_pose = self._planar_pose_to_world_pose(object_pose_planar)
         self.intermidiate_start_pose = self._planar_pose_to_world_pose(intermidiate_pose_planar)
+        self.object_start_pose = self._planar_pose_to_world_pose(object_pose_planar)
         self.object_target_pose = self._planar_pose_to_world_pose(object_target_pose_planar)
 
 
