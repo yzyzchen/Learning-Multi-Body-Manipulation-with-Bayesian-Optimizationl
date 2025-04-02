@@ -3,3 +3,11 @@
 3. collect data: 'python multi_dynamic_main.py collect'
 4. train data: 'python multi_dynamic_main.py train --num_epochs 1000'
 5. run trained model and show: 'python multi_dynamic_main.py demo_model --debug'
+
+#  Learning Multi-Body Dynamics
+
+![Demo](assets/1.gif)
+
+![Dynamics Learning](https://img.shields.io/badge/multi-body-dynamics-orange)
+![Primary language](https://img.shields.io/badge/Python-100.0%25-red)
+![License](https://img.shields.io/badge/license-MIT-green)
