@@ -155,8 +155,8 @@ class MultiStepTrainer:
     def evaluate_model(self):
         """Model Validation Stage"""
         print("\n=== Model Validation Stage ===")
-        env = PandaPushingEnv(render_non_push_motions=False)
-        
+        env = PandaPushingEnv(render_non_push_motions=False, debug=True)
+        initial_state = env.reset() 
         # 加载模型
         model = ResidualDynamicsModel(
             state_dim=env.observation_space.shape[0],

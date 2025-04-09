@@ -101,8 +101,8 @@ class PandaPushingEnv(gym.Env):
         self.observation_space = spaces.Box(low=np.array([self.space_limits[0][0], self.space_limits[0][1], -np.pi], dtype=np.float32),
                                             high=np.array([self.space_limits[1][0], self.space_limits[1][0],
                                                            np.pi], dtype=np.float32)) 
-        self.action_space = spaces.Box(low=np.array([-1, -np.pi * 0.5, 0], dtype=np.float32),
-                                       high=np.array([1, np.pi * 0.5, 1], dtype=np.float32))  #
+        self.action_space = spaces.Box(low=np.array([-0.5, -np.pi / 3, 0], dtype=np.float32),
+                                       high=np.array([0.5, np.pi / 3, 1], dtype=np.float32))  #
 
         
         self.target_state = TARGET_POSE_FREE
@@ -395,9 +395,12 @@ class PandaPushingEnv(gym.Env):
         center_x = 0.5
         y = 0.0
         theta = 0.0
-        # intermidiate_disk on the LEFT (pushed by robot)
-        intermidiate_pose_planar = np.array([center_x - radius, y, theta])
+        angle_offset = np.random.uniform(-np.pi / 6, np.pi / 6)
 
+        # intermidiate_disk on the LEFT (pushed by robot)
+        intermidiate_pose_planar = np.array([center_x + radius -2 * radius * np.cos(angle_offset), y - 2*np.sin(angle_offset)*radius, theta])
+        # intermidiate_pose_planar = np.array([center_x - radius, y, theta])
+        print(angle_offset)
         # object_disk on the RIGHT (goal is to reach the target)
         object_pose_planar = np.array([center_x + radius, y, theta])
 
