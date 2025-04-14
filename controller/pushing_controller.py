@@ -128,7 +128,7 @@ def free_pushing_cost_function(state, action, target_pose, Q_diag=[100, 100, 0.1
     target_pose = target_pose#.to(dtype=state.dtype, device=state.device)  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
     cost = None
     # --- Your code here
-    state_diff = state - target_pose
+    state_diff = state[:, :3] - target_pose
     if torch.is_tensor(Q_diag):
         Q = torch.diag(Q_diag).to(dtype=state.dtype, device=state.device)
     else:

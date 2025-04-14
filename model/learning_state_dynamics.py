@@ -272,23 +272,28 @@ class SE2PoseLoss(nn.Module):
 
     """
 
-    def __init__(self, block_width, block_length):
+    def __init__(self):
         super().__init__()
-        self.w = block_width
-        self.l = block_length
+        self.r = DISK_SIZE/2
 
     def forward(self, pose_pred, pose_target):
         se2_pose_loss = None
         # --- Your code here
-        rg = ((self.l**2 + self.w**2)/12)**(1/2)
+        rg = self.r * 0.7071
         mse_x = F.mse_loss(pose_pred[:,0],pose_target[:,0])
         mse_y = F.mse_loss(pose_pred[:,1], pose_target[:,1])
-        mse_theta = F.mse_loss(pose_pred[:,2], pose_target[:,2])
-
+        mse_theta = F.mse_loss(torch.sin(pose_pred[:,2]), torch.sin(pose_target[:,2]))
+        mse_theta = mse_theta + F.mse_loss(torch.cos(pose_pred[:,2]), torch.cos(pose_target[:,2]))
+        # se2_pose_loss = mse_x + mse_y + rg * mse_theta
         se2_pose_loss = mse_x + mse_y + rg * mse_theta
 
+        mse_x_inter = F.mse_loss(pose_pred[:,3],pose_target[:,3])
+        mse_y_inter = F.mse_loss(pose_pred[:,4], pose_target[:,4])
+        mse_theta_inter = F.mse_loss(torch.sin(pose_pred[:,5]), torch.sin(pose_target[:,5]))
+        mse_theta_inter = mse_theta + F.mse_loss(torch.cos(pose_pred[:,5]), torch.cos(pose_target[:,5]))
+        se2_pose_loss_inter = mse_x_inter + mse_y_inter + rg * mse_theta_inter
         # ---
-        return se2_pose_loss
+        return se2_pose_loss + se2_pose_loss_inter
 
 
 class SingleStepLoss(nn.Module):
@@ -335,8 +340,6 @@ class MultiStepLoss(nn.Module):
           multi_step_loss += discount * step_loss
           discount *= self.discount
           current_state = predicted_state
-
-
         # ---
         return multi_step_loss
 
@@ -355,8 +358,6 @@ class AbsoluteDynamicsModel(nn.Module):
         self.fc2 = nn.Linear(100, 100)
         self.fc3 = nn.Linear(100, state_dim)
         self.relu = nn.ReLU()
-
-
         # ---
 
     def forward(self, state, action):
@@ -428,14 +429,33 @@ def free_pushing_cost_function(state, action):
     :param action: torch tensor of shape (B, state_size)
     :return: cost: torch tensor of shape (B,) containing the costs for each of the provided states
     """
-    target_pose = TARGET_POSE_FREE_TENSOR  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
-    cost = None
-    # --- Your code here
-    state_pose = state
-    error = state_pose - target_pose
-    Q = torch.diag(torch.tensor([1.0, 1.0, 0.1], dtype=state.dtype, device=state.device))
-    cost = torch.sum(error @ Q * error, dim=1)
-    # ---
+    # target_pose = TARGET_POSE_FREE_TENSOR  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
+    # cost = None
+    # # --- Your code here
+    # state_pose = state
+    # error = state_pose[:, :3] - target_pose
+    # Q = torch.diag(torch.tensor([1.0, 1.0, 0.1], dtype=state.dtype, device=state.device))
+    # cost = torch.sum(error @ Q * error, dim=1)
+    # # ---
+    # return cost
+
+    # --- Step 1: Extract xy
+    target_xy = state[:, 0:2]     # (B, 2)
+    inter_xy = state[:, 3:5]      # (B, 2)
+    goal_xy = TARGET_POSE_FREE_TENSOR[:2]  # (2,)
+
+    # --- Step 2: cost for reaching goal
+    target_error = target_xy - goal_xy     # (B, 2)
+    cost_goal = torch.sum(target_error**2, dim=1)  # (B,)
+
+    # --- Step 3: alignment cost using cross product
+    v1 = target_xy - inter_xy              # vector: inter → target
+    v2 = goal_xy.unsqueeze(0) - inter_xy   # vector: inter → goal
+    cross = v1[:, 0] * v2[:, 1] - v1[:, 1] * v2[:, 0]  # 2D cross product (B,)
+    alignment_cost = cross ** 2
+
+    # --- Final cost
+    cost = cost_goal + 100.0 * alignment_cost
     return cost
 
 

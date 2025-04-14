@@ -129,7 +129,7 @@ if __name__ == "__main__":
     
     # 数据收集模式
     collect_parser = subparsers.add_parser('collect', help="数据收集")
-    collect_parser.add_argument('--num_traj', type=int, default=100,
+    collect_parser.add_argument('--num_traj', type=int, default=300,
                               help="轨迹数量")
     collect_parser.add_argument('--traj_len', type=int, default=10,
                                help="单轨迹长度")

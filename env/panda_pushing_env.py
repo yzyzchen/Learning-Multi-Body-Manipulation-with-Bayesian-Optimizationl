@@ -18,7 +18,7 @@ project_root = os.path.dirname(os.path.dirname(current_file_path))
 assets_dir = os.path.join(project_root, 'assets')
 
 
-BOX_SIZE = 0.1
+# BOX_SIZE = 0.1
 DISK_SIZE = 0.12
 
 TARGET_POSE_FREE = np.array([0.9, 0., 0.])
@@ -89,20 +89,21 @@ class PandaPushingEnv(gym.Env):
         p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40,
                                      cameraTargetPosition=[0.55, -0.35, 0.2])
 
-        self.block_size = BOX_SIZE
+        # self.block_size = BOX_SIZE
         self.disk_size = DISK_SIZE 
         # Motion parameter
         self.lower_z = 0.02
         self.raise_z = 0.3
         # self.push_length = 0.02
-        self.push_length = 0.1
+        self.push_length = 0.05
 
         self.space_limits = [np.array([0.05, -0.35]), np.array([.8, 0.35])]  # xy limits
-        self.observation_space = spaces.Box(low=np.array([self.space_limits[0][0], self.space_limits[0][1], -np.pi], dtype=np.float32),
-                                            high=np.array([self.space_limits[1][0], self.space_limits[1][0],
-                                                           np.pi], dtype=np.float32)) 
-        self.action_space = spaces.Box(low=np.array([-0.5, -np.pi / 3, 0], dtype=np.float32),
-                                       high=np.array([0.5, np.pi / 3, 1], dtype=np.float32))  #
+        self.observation_space = spaces.Box(low=np.array([self.space_limits[0][0], self.space_limits[0][1], -np.pi, 
+                                                          self.space_limits[0][0], self.space_limits[0][1], -np.pi], dtype=np.float32),
+                                            high=np.array([self.space_limits[1][0], self.space_limits[1][0], np.pi, 
+                                                           self.space_limits[1][0], self.space_limits[1][0], np.pi], dtype=np.float32)) 
+        self.action_space = spaces.Box(low=np.array([-1, -np.pi / 3, 0], dtype=np.float32),
+                                       high=np.array([1, np.pi / 3, 1], dtype=np.float32))  #
 
         
         self.target_state = TARGET_POSE_FREE
@@ -160,7 +161,7 @@ class PandaPushingEnv(gym.Env):
         p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING)
         # Convert the action values to the true ranges
         push_location_fraction, push_angle, push_length_fraction = action[0], action[1], action[2]
-        push_location = push_location_fraction * self.block_size * 0.5 * 0.95 # we add some small 5% gap so we make sure we do not surpass the border
+        push_location = push_location_fraction * self.disk_size * 0.5 * 0.95 # we add some small 5% gap so we make sure we do not surpass the border
         push_length = push_length_fraction * self.push_length
         # Perform the action
         self.push(push_location, push_angle, push_length=push_length)
@@ -181,9 +182,9 @@ class PandaPushingEnv(gym.Env):
 
         # 1. Goal check
         if self.include_obstacle:
-            at_goal = np.sum((state - TARGET_POSE_OBSTACLES) ** 2) < 0.01
+            at_goal = np.sum((state[:3] - TARGET_POSE_OBSTACLES) ** 2) < 0.01
         else:
-            at_goal = np.sum((state - TARGET_POSE_FREE) ** 2) < 0.01
+            at_goal = np.sum((state[:3] - TARGET_POSE_FREE) ** 2) < 0.01
         done = done or at_goal
 
         # 2. Disk detachment check
@@ -231,26 +232,18 @@ class PandaPushingEnv(gym.Env):
             self.is_render_on = False
         self.raise_up()
         start_gap = 0.1
-        start_xy_bf = np.array([-start_gap, push_location])  # in block frame
+        x_position = -np.sqrt(start_gap ** 2 - push_location ** 2)
+        y_position = push_location
+        start_xy_bf = np.array([x_position, y_position])  # in block frame
         w_R_bf = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
         start_xy_wf = w_R_bf @ start_xy_bf + current_block_pose[:2]  # in world frame
         # set xy
         self.set_planar_xy(start_xy_wf, theta=theta)
         # set theta
         self.lower_down()
-        self.planar_push(theta, push_length=start_gap-0.015-.5*self.block_size, step_size=0.005) # push until barely touch the block
+        self.planar_push(theta, push_length=start_gap-0.015-.5*self.disk_size, step_size=0.005) # push until barely touch the block
         self.is_render_on = True
         self.planar_push(push_angle + theta, push_length=push_length, step_size=0.005)
-
-    def get_intermidiate_pose(self):
-        pos, quat = p.getBasePositionAndOrientation(self.intermidiateUid)
-        pos = np.asarray(pos)
-        quat = np.asarray(quat)
-        return np.concatenate([pos, quat])
-
-    def get_intermidiate_pos_planar(self):
-        inter_pose = self.get_intermidiate_pose()
-        return self._world_pose_to_planar_pose(inter_pose)
 
     def _move_ee_trajectory(self, target_ee_pos, step_size=0.001):
         # interpolate and do ik along the trajectory to set the ee position in many places
@@ -297,7 +290,19 @@ class PandaPushingEnv(gym.Env):
 
     def get_state(self):
         state = self.get_object_pos_planar().astype(np.float32)
+        state_inter = self.get_intermidiate_pos_planar().astype(np.float32)  
+        state = np.concatenate([state, state_inter])      
         return state
+    
+    def get_intermidiate_pose(self):
+        pos, quat = p.getBasePositionAndOrientation(self.intermidiateUid)
+        pos = np.asarray(pos)
+        quat = np.asarray(quat)
+        return np.concatenate([pos, quat])
+
+    def get_intermidiate_pos_planar(self):
+        inter_pose = self.get_intermidiate_pose()
+        return self._world_pose_to_planar_pose(inter_pose)
 
     def get_object_pose(self):
         pos, quat = p.getBasePositionAndOrientation(self.objectUid)

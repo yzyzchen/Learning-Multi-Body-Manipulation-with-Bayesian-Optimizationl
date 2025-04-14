@@ -75,7 +75,7 @@ class MultiStepTrainer:
         ).to(self.device)
 
         criterion = MultiStepLoss(
-            nn.MSELoss(),
+            SE2PoseLoss(),
             # SE2PoseLoss(block_width=0.1, block_length=0.1),
             discount=self.config['discount']
         )
