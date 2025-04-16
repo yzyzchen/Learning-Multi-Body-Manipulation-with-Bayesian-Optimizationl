@@ -477,7 +477,7 @@ def collision_detection(state):
 
     eff_half = (box_size / 2) * (torch.abs(torch.cos(theta)) + torch.abs(torch.sin(theta)))
 
-    obs_half = obstacle_dims / 2
+    obs_half = obstacle_dims / 1
 
     dx = torch.abs(x - obstacle_centre[0])
     dy = torch.abs(y - obstacle_centre[1])
@@ -497,16 +497,23 @@ def obstacle_avoidance_pushing_cost_function(state, action):
     :param action: torch tensor of shape (B, state_size)
     :return: cost: torch tensor of shape (B,) containing the costs for each of the provided states
     """
-    target_pose = TARGET_POSE_OBSTACLES_TENSOR  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
+    target_pose = TARGET_POSE_OBSTACLES_TENSOR
+  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
     cost = None
     # --- Your code here
-    
-    error = state - target_pose
-    Q = torch.diag(torch.tensor([1.0, 1.0, 0.1], dtype=state.dtype, device=state.device))
-    state_cost = torch.sum((error @ Q) * error, dim=1)
-    collision_cost = 100 * collision_detection(state)
-    cost = state_cost + collision_cost
+    target_xy = state[:, 0:2]     # (B, 2)
+    inter_xy = state[:, 3:5]
+    goal_xy = TARGET_POSE_OBSTACLES_TENSOR[:2]
+    target_error = target_xy - goal_xy     # (B, 2)
+    cost_goal = torch.sum(target_error**2, dim=1)  # (B,)
+    collision_cost = collision_detection(state)
 
+    v1 = target_xy - inter_xy              # vector: inter → target
+    v2 = goal_xy.unsqueeze(0) - inter_xy   # vector: inter → goal
+    cross = v1[:, 0] * v2[:, 1] - v1[:, 1] * v2[:, 0]  # 2D cross product (B,)
+    alignment_cost = cross ** 2
+
+    cost = cost_goal + 10000 * collision_cost + 100 * alignment_cost
 
     # ---
     return cost

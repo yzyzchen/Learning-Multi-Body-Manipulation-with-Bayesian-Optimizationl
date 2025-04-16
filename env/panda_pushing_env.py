@@ -22,9 +22,10 @@ assets_dir = os.path.join(project_root, 'assets')
 DISK_SIZE = 0.12
 
 TARGET_POSE_FREE = np.array([0.9, 0., 0.])
-TARGET_POSE_OBSTACLES = np.array([0.9, -0.1, 0.])
-OBSTACLE_CENTRE = np.array([0.6, 0.2, 0.])
-OBSTACLE_HALFDIMS = np.array([0.05, 0.25, 0.05])
+TARGET_POSE_OBSTACLES = np.array([1.1, -0.1, 0.])
+OBSTACLE_CENTRE = np.array([0.8, 0.2, 0.])
+# OBSTACLE_HALFDIMS = np.array([0.05, 0.25, 0.05])
+OBSTACLE_HALFDIMS = np.array([0.015, 0.2, 0.05])
 
 
 class PandaPushingEnv(gym.Env):
@@ -140,7 +141,7 @@ class PandaPushingEnv(gym.Env):
         self.targetUid = p.loadURDF(self.target_file_path, basePosition=self.object_target_pose[:3], baseOrientation=self.object_target_pose[3:], globalScaling=1., useFixedBase=True)
 
         if self.include_obstacle:
-            self.obstacleUid = p.loadURDF(self.obstacle_file_path, basePosition=[.6, 0.2, 0], useFixedBase=True)
+            self.obstacleUid = p.loadURDF(self.obstacle_file_path, basePosition=OBSTACLE_CENTRE.tolist(), useFixedBase=True)
 
         p.setCollisionFilterGroupMask(self.targetUid, -1, 0, 0)  # remove collisions with targeUid
         p.setCollisionFilterPair(self.pandaUid, self.targetUid, -1, -1, 0)  # remove collision between robot and target

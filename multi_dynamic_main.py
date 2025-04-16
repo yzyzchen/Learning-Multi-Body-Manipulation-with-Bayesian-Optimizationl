@@ -59,7 +59,8 @@ def run_demo_with_model(config):
     env = PandaPushingEnv(
         visualizer=True, 
         render_every_n_steps=1,
-        debug=config['debug']
+        debug=config['debug'],
+        include_obstacle=True,
     )
     from model.learning_state_dynamics import ResidualDynamicsModel
     model = ResidualDynamicsModel(
@@ -72,11 +73,11 @@ def run_demo_with_model(config):
     model.eval()
     
     # Initialize the controller
-    from model.learning_state_dynamics import PushingController, free_pushing_cost_function
+    from model.learning_state_dynamics import PushingController, free_pushing_cost_function, obstacle_avoidance_pushing_cost_function
     controller = PushingController(
         env=env,
         model=model,
-        cost_function=free_pushing_cost_function,
+        cost_function=obstacle_avoidance_pushing_cost_function,
         num_samples=100,
         horizon=10
     )
@@ -86,7 +87,8 @@ def run_demo_with_model(config):
         total_reward = 0
         
         with tqdm(total=config['steps'], desc=f"Episode {episode+1}") as pbar:
-            for step in range(config['steps']):
+            # for step in range(config['steps']):
+            for step in range(30):
                 # Generate action
                 action = controller.control(state)
                 
