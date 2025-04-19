@@ -230,13 +230,16 @@ class PandaBoxPushingStudy:
         self._step_scale = step_scale
         self._goal_scale = goal_scale
         self._goal_tol = DISK_SIZE
-
-        self._dynamics_model = ResidualDynamicsModel(state_dim=3, action_dim=3)
+        
+        self._env = PandaPushingEnv(debug=render, include_obstacle=include_obstacle, render_non_push_motions=False, 
+                                 camera_heigh=800, camera_width=800, render_every_n_steps=20, visualizer=visualizer)
+        
+        self._dynamics_model = ResidualDynamicsModel(state_dim=self._env.observation_space.shape[0], action_dim=self._env.action_space.shape[0])
         self._dynamics_model.load_state_dict(torch.load(BOX_MULTI_RESIDUAL_MODEL))
         self._dynamics_model.eval()
 
-        self._env = PandaPushingEnv(debug=render, include_obstacle=include_obstacle, render_non_push_motions=False, 
-                                 camera_heigh=800, camera_width=800, render_every_n_steps=20, visualizer=visualizer)
+        # self._env = PandaPushingEnv(debug=render, include_obstacle=include_obstacle, render_non_push_motions=False, 
+        #                          camera_heigh=800, camera_width=800, render_every_n_steps=20, visualizer=visualizer)
         self._controller = PushingController(self._env, self._dynamics_model,
                                             cost_func, 
                                             num_samples=1000, horizon=20,
