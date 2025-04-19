@@ -9,6 +9,8 @@ import numpy as np
 import torch
 
 from env.panda_pushing_env import PandaPushingEnv
+from optimizer.panda_pushing_optimizer import PandaBoxPushingStudy
+from env.visualizers import GIFVisualizer
 
 def collect_data(config):
     """Collecting data mode"""
@@ -60,7 +62,7 @@ def run_demo_with_model(config):
         visualizer=True, 
         render_every_n_steps=1,
         debug=config['debug'],
-        include_obstacle=True,
+        include_obstacle=False,
     )
     from model.learning_state_dynamics import ResidualDynamicsModel
     model = ResidualDynamicsModel(
@@ -77,7 +79,7 @@ def run_demo_with_model(config):
     controller = PushingController(
         env=env,
         model=model,
-        cost_function=obstacle_avoidance_pushing_cost_function,
+        cost_function=free_pushing_cost_function,
         num_samples=100,
         horizon=10
     )
@@ -120,8 +122,26 @@ def run_demo_with_model(config):
         from env.panda_pushing_env import DISK_SIZE
         print(f"Final Distance: {distance:.4f} (Requirement < {DISK_SIZE})")
 
+def run_opt_demo_with_model():
+    """Load the model and run the demo"""
+    print("\n=== Load the model and run the demo with bayes optimization===")
+    
+    # Initialize the model and environment
+    test_param_ours_obs = [0.05474454, 5.137514, 1.3101447, 8.374978]
+
+    # visualizer.reset()
+    test_free = PandaBoxPushingStudy(epoch=5, render=True, logdir="logs/", 
+                                    study_name="test", 
+                                    include_obstacle=False, 
+                                    random_target=True,
+                                    opt_type="test", 
+                                    step_scale=0.1, 
+                                    device="cpu",
+                                    test_params=test_param_ours_obs,
+                                    visualizer=True)
+    test_free.run()
+
 if __name__ == "__main__":
-    # 主参数解析器
     parser = argparse.ArgumentParser(
         description="Multi-body dynamics simulation",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -129,28 +149,28 @@ if __name__ == "__main__":
     
     subparsers = parser.add_subparsers(dest='command', required=True)
     
-    # 数据收集模式
-    collect_parser = subparsers.add_parser('collect', help="数据收集")
+    # Collect data mode
+    collect_parser = subparsers.add_parser('collect', help="collecting data")
     collect_parser.add_argument('--num_traj', type=int, default=500,
-                              help="轨迹数量")
+                              help="number of trajectories")
     collect_parser.add_argument('--traj_len', type=int, default=10,
-                               help="单轨迹长度")
+                               help="trajectory length")
     collect_parser.add_argument('--save_path', type=str, 
                                default='model/collected_data.npy',
-                               help="数据保存路径")
+                               help="data save path")
 
-    # 模型训练模式
-    train_parser = subparsers.add_parser('train', help="模型训练") 
+    # Model training mode
+    train_parser = subparsers.add_parser('train', help="training model") 
     train_parser.add_argument('--num_epochs', type=int, default=1000,
-                             help="训练轮次")
+                             help="training epochs")
     train_parser.add_argument('--data_path', type=str,
                              default='model/collected_data.npy',
-                             help="训练数据路径")
+                             help="training data path")
     train_parser.add_argument('--model_save', type=str,
                             default='model/trained_model/model.pt',
-                            help="模型保存路径")
+                            help="model save path")
 
-    # 在main的parser中添加
+    # Debug mode
     demo_model_parser = subparsers.add_parser('demo_model', help="Load the model and run the demo")
     demo_model_parser.add_argument('--model_path', type=str, 
                                 default='model/trained_model/model.pt',
@@ -163,6 +183,11 @@ if __name__ == "__main__":
                              help="maximum steps per episode")
     demo_model_parser.add_argument('--model_save', type=str, default='model/trained_model/model.pt',
                              help="model save path")
+    
+    # Optimizer demo mode
+    opt_demo_model_parser = subparsers.add_parser('opt_demo_model', help="Load the model and run the demo with bayes optimization")
+    # opt_demo_model_parser.add_argument('--debug', action='store_true',
+    #                             help="start the debug mode")
 
     args = parser.parse_args()
     # 模式分发
@@ -190,6 +215,15 @@ if __name__ == "__main__":
             'model_save_path': args.model_save
         }
         run_demo_with_model(demo_config)
+
+    elif args.command == 'opt_demo_model':
+        # opt_demo_config = {
+        #     'debug': args.debug,
+        #     'num_episodes': args.episodes,
+        #     'steps': args.steps,
+        #     'model_save_path': args.model_save
+        # }
+        run_opt_demo_with_model()
 
     else:
         parser.print_help()

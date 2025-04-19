@@ -1,5 +1,5 @@
 """
-train_multi_step.py - 多步残差动力学模型训练管道
+train_multi_step.py - multi-step residual dynamics model training script
 """
 import os
 import numpy as np
@@ -9,12 +9,12 @@ from tqdm.auto import tqdm
 from torch import optim
 import torch.nn as nn
 
-# 项目路径配置
+# Project directory
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(PROJECT_ROOT, 'model')
 ASSETS_DIR = os.path.join(PROJECT_ROOT, 'assets')
 
-# 环境配置
+# Environment configuration
 from env.panda_pushing_env import PandaPushingEnv, TARGET_POSE_FREE, DISK_SIZE
 from model.learning_state_dynamics import (
     collect_data_random,
@@ -25,12 +25,12 @@ from model.learning_state_dynamics import (
 )
 
 DEFAULT_CONFIG = {
-    # 数据配置
+    # data configuration
     'num_trajectories': 100,
     'trajectory_length': 10,
     'data_save_path': os.path.join(DATA_DIR, 'collected_data.npy'),
     
-    # 训练配置
+    # training configuration
     'batch_size': 500,
     'num_steps': 4,
     'discount': 0.9, 
@@ -86,23 +86,23 @@ class MultiStepTrainer:
 
         with tqdm(range(self.config['num_epochs']), unit='epoch') as pbar:
             for epoch in pbar:
-                # 训练步骤
+                # training step
                 model.train()
                 train_loss = self._run_epoch(model, train_loader, criterion, optimizer)
                 train_losses.append(train_loss)
 
-                # 验证步骤
+                # validation step
                 model.eval()
                 val_loss = self._run_epoch(model, val_loader, criterion)
                 val_losses.append(val_loss)
 
-                # 更新进度
+                # update progress bar
                 pbar.set_postfix({
                     'train': f"{train_loss:.4f}",
                     'val': f"{val_loss:.4f}"
                 })
 
-                # 保存最佳模型
+                # save the best trained model
                 if val_loss < best_loss:
                     best_loss = val_loss
                     torch.save(model.state_dict(), self.config['model_save_path'])
@@ -110,20 +110,20 @@ class MultiStepTrainer:
         return train_losses, val_losses
 
     def _run_epoch(self, model, loader, criterion, optimizer=None):
-        """执行单个epoch"""
+        """Execute a single epoch"""
         total_loss = 0.0
         for batch in loader:
             if optimizer: optimizer.zero_grad()
             
-            # 转移数据到设备
+            # Move data to the current device
             states = batch['state'].to(self.device)
             actions = batch['action'].to(self.device)
             next_states = batch['next_state'].to(self.device)
 
-            # 计算损失
+            # Compute the loss
             loss = criterion(model, states, actions, next_states)
             
-            # 反向传播
+            # Backpropagation
             if optimizer:
                 loss.backward()
                 optimizer.step()
@@ -133,7 +133,7 @@ class MultiStepTrainer:
         return total_loss / len(loader)
 
     def visualize_results(self, train_losses, val_losses):
-        """结果可视化"""
+        """Visualize Training Results"""
         plt.figure(figsize=(12, 5))
         
         plt.subplot(1, 2, 1)
@@ -157,7 +157,7 @@ class MultiStepTrainer:
         print("\n=== Model Validation Stage ===")
         env = PandaPushingEnv(render_non_push_motions=False, debug=True)
         initial_state = env.reset() 
-        # 加载模型
+        # load the trained model
         model = ResidualDynamicsModel(
             state_dim=env.observation_space.shape[0],
             action_dim=env.action_space.shape[0]
@@ -169,7 +169,7 @@ class MultiStepTrainer:
         model.to(self.device)
         model.eval()
         
-        # 运行控制器
+        # execute the controller
         from controller.pushing_controller import PushingController, free_pushing_cost_function
         controller = PushingController(
             env=env,
@@ -187,16 +187,16 @@ class MultiStepTrainer:
             state, _, done, _ = env.step(action)
             if done: break
             
-        # 验证结果
+        # validate the results
         end_state = env.get_state()
         goal_distance = np.linalg.norm(end_state[:2] - TARGET_POSE_FREE[:2])
-        print(f"\n目标距离: {goal_distance:.4f} (阈值: {DISK_SIZE})")
-        print(f"目标达成: {goal_distance < DISK_SIZE}")
+        print(f"\nGoal Distance: {goal_distance:.4f} (Threshold: {DISK_SIZE})")
+        print(f"Target achieved: {goal_distance < DISK_SIZE}")
 
 if __name__ == "__main__":
-    # 训练配置
+    # training configuration
     config = DEFAULT_CONFIG.copy()
 
-    # 执行训练流程
+    # execute the training pipeline
     trainer = MultiStepTrainer(config)
     trainer.main()
