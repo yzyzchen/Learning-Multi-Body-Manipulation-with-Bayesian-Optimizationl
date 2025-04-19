@@ -24,8 +24,8 @@ class PushingController(object):
         state_dim = env.observation_space.shape[0]
         u_min = torch.from_numpy(env.action_space.low)
         u_max = torch.from_numpy(env.action_space.high)
-        noise_sigma = torch.eye(env.action_space.shape[0])
-        lambda_value = 1.0
+        noise_sigma = 0.4 * torch.eye(env.action_space.shape[0])
+        lambda_value = 0.01
 
         self.mppi = MPPI(self._compute_dynamics,
                          partial(cost_function, target_pose=self.target_state),
@@ -83,7 +83,7 @@ class PushingController(object):
             state_tensor = torch.tensor(state, dtype=torch.float32, device=device)
         else:
             state_tensor = state.detach().to(device)
-            
+
         action_tensor = self.mppi.command(state_tensor)
         return action_tensor.detach().cpu().numpy()
 
@@ -130,16 +130,26 @@ def free_pushing_cost_function(state, action, target_pose, Q_diag=[100, 100, 0.1
     :param action: torch tensor of shape (B, state_size)
     :return: cost: torch tensor of shape (B,) containing the costs for each of the provided states
     """
-    target_pose = target_pose#.to(dtype=state.dtype, device=state.device)  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
-    cost = None
+    # target_pose = target_pose#.to(dtype=state.dtype, device=state.device)  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
+    # cost = None
     # --- Your code here
-    state_diff = state[:, :3] - target_pose
-    if torch.is_tensor(Q_diag):
-        Q = torch.diag(Q_diag).to(dtype=state.dtype, device=state.device)
-    else:
-        Q = torch.diag(torch.tensor(Q_diag, dtype=state.dtype, device=state.device))
-    cost = (state_diff @ Q @ state_diff.T).diagonal()
-    # ---
+    # --- Step 1: Extract xy
+    target_xy = state[:, 0:2]     # (B, 2)
+    inter_xy = state[:, 3:5]      # (B, 2)
+    goal_xy = TARGET_POSE_FREE_TENSOR[:2]  # (2,)
+
+    # --- Step 2: cost for reaching goal
+    target_error = target_xy - goal_xy     # (B, 2)
+    cost_goal = torch.sum(target_error**2, dim=1)  # (B,)
+
+    # --- Step 3: alignment cost using cross product
+    v1 = target_xy - inter_xy              # vector: inter → target
+    v2 = goal_xy.unsqueeze(0) - inter_xy   # vector: inter → goal
+    cross = v1[:, 0] * v2[:, 1] - v1[:, 1] * v2[:, 0]  # 2D cross product (B,)
+    alignment_cost = cross ** 2
+
+    # --- Final cost
+    cost = cost_goal + 100.0 * alignment_cost
     return cost
 
 

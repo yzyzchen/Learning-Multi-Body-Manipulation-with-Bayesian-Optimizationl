@@ -9,7 +9,9 @@ from bayes_opt import UtilityFunction
 from bayes_opt import BayesianOptimization as BayesOpt
 from cma import CMAEvolutionStrategy
 
-from controller.pushing_controller import PushingController, obstacle_avoidance_pushing_cost_function, free_pushing_cost_function
+from controller.pushing_controller import PushingController, free_pushing_cost_function, obstacle_avoidance_pushing_cost_function
+# from model.learning_state_dynamics import free_pushing_cost_function, obstacle_avoidance_pushing_cost_function
+
 from env.panda_pushing_env import DISK_SIZE, PandaPushingEnv
 from optimizer.bayesian_optimization import BayesianOptimization
 from model.learning_state_dynamics import ResidualDynamicsModel
@@ -93,6 +95,14 @@ class PushingLogger:
                 self.goal_dist.append(row[2])
                 self.goal_status.append(row[3])
                 self.params.append(row[4:])
+
+    def summarize_cost(self):
+        self.to_ndarray()  # 确保 costs 是 ndarray
+        mean_cost = self.costs.mean()
+        var_cost = self.costs.var()
+        print(f"Cost Mean: {mean_cost:.4f}")
+        print(f"Cost Variance: {var_cost:.4f}")
+        return mean_cost, var_cost
                 
 
     @property
@@ -209,17 +219,18 @@ class PandaBoxPushingStudy:
         self._n_step = 20
         self._render = render
         self._log_dir = logdir
-        self._random_target = True if not include_obstacle and random_target else False
-        self._target_state = np.array([0.7, 0., 0.]) if target_state is None else target_state
+        # self._random_target = True if not include_obstacle and random_target else False
+        self._random_target = False
+        self._target_state = np.array([0.9, 0., 0.]) if target_state is None else target_state
         self._opt_type = opt_type
         self.test_params = test_params
 
         param_dict = {}
         param_dict["lower"] = [1e-8, 1e-8, 1e-8, 1e-8]
-        param_dict["upper"] = [1, 10, 10, 10]
+        param_dict["upper"] = [1, 1, 1, 1]
         param_dict["acq_mode"] = "ei"
-        param_dict["initial_mean"] = [0.5, 5, 5, 5]
-        param_dict["initial_sigma"] = 0.5
+        param_dict["initial_mean"] = [0.5, 0.5, 0.5, 0.5]
+        param_dict["initial_sigma"] = 0.2
         param_dict["popsize"] = 3
 
         cost_func = obstacle_avoidance_pushing_cost_function if include_obstacle else free_pushing_cost_function
@@ -256,11 +267,11 @@ class PandaBoxPushingStudy:
 
     def run(self):
         self._logger.reset()
-        if self._target_state is not None:
-            target_state = self._target_state.copy()
-        else:
-            target_state = get_random_target_state()
-        
+        # if self._target_state is not None:
+        #     target_state = self._target_state.copy()
+        # else:
+        #     target_state = get_random_target_state()
+        target_state = self._target_state.copy()
         if self._opt_type == "test":
             status = 'random' if self._random_target else 'fixed'
             print(f"Testing box pushing optimizer with {status} target for {self._epoch} epochs")
@@ -268,9 +279,11 @@ class PandaBoxPushingStudy:
             for _ in range(self._epoch):
                 if self._random_target:
                     target_state = get_random_target_state()
+                print("target state: ", target_state)
                 end_state, pushing_step = run_pushing_task(self._env, self._controller, self._n_step, target_state, parameters)
                 goal_distance = np.linalg.norm(end_state[:2]-target_state[:2]) # evaluate only position, not orientation
-                goal_reached = goal_distance < self._goal_tol
+                print("goal dist: ", goal_distance)
+                goal_reached = goal_distance < self._goal_tol and self._env._are_disks_attached()
                 cost = self._compute_cost(goal_distance, goal_reached, pushing_step)
                 self._logger.update(cost, pushing_step, goal_distance, goal_reached, parameters)
             optimized_param = parameters
@@ -289,7 +302,8 @@ class PandaBoxPushingStudy:
                         target_state = get_random_target_state()
                     end_state, pushing_step = run_pushing_task(self._env, self._controller, self._n_step, target_state, param)
                     goal_distance = np.linalg.norm(end_state[:2]-target_state[:2]) # evaluate only position, not orientation
-                    goal_reached = goal_distance < self._goal_tol
+                    
+                    goal_reached = goal_distance < self._goal_tol and self._env._are_disks_attached()
                     cost = self._compute_cost(goal_distance, goal_reached, pushing_step)
 
                     self._logger.update(cost, pushing_step, goal_distance, goal_reached, param)
@@ -307,6 +321,10 @@ class PandaBoxPushingStudy:
 
     def load_logs(self, filename):
         self._logger.load(self._log_dir, filename)
+    
+    def get_cost_mean_and_var(self):
+        mean, var = self._logger.summarize_cost()
+        return mean, var
 
 def get_random_target_state(low=[0.65, -0.3, 0.0], high=[0.8, 0.3, 0.0]):
     return np.random.uniform(low=low, high=high, size=None)
@@ -322,6 +340,7 @@ def run_pushing_task(env, controller, step, target_state, hyperparameters):
     # for i in tqdm(range(step)):
     for i in range(step):
         action = controller.control(state)
+        action = np.clip(action, env.action_space.low, env.action_space.high)
         state, _, done, _ = env.step(action)
         if done:
             break

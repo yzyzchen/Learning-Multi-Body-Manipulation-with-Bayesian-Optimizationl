@@ -171,6 +171,9 @@ class PandaPushingEnv(gym.Env):
         done = self._is_done(state)
         info = {}
         return state, reward, done, info
+    
+    def disconnect(self):
+        p.disconnect()
 
     def _are_disks_attached(self):
         pos1 = np.array(p.getBasePositionAndOrientation(self.objectUid)[0])[:2]
@@ -394,7 +397,7 @@ class PandaPushingEnv(gym.Env):
     def set_target_state(self, target_state):
         assert isinstance(target_state, np.ndarray)
         self.target_state = target_state
-        
+
     def _set_object_positions(self):
         if self.include_obstacle:
             object_target_pose_planar = TARGET_POSE_OBSTACLES
