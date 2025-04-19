@@ -391,6 +391,10 @@ class PandaPushingEnv(gym.Env):
         # Here we would add text and bounding boxed to the debug simulation
         p.removeAllUserDebugItems()
 
+    def set_target_state(self, target_state):
+        assert isinstance(target_state, np.ndarray)
+        self.target_state = target_state
+        
     def _set_object_positions(self):
         if self.include_obstacle:
             object_target_pose_planar = TARGET_POSE_OBSTACLES

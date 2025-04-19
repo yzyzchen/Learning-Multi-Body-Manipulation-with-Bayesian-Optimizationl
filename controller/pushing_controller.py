@@ -78,7 +78,12 @@ class PushingController(object):
         # # ---
         # return action
         device = next(self.model.parameters()).device  # 获取模型所在的设备
-        state_tensor = state.clone().detach().to(device)
+        # state_tensor = state.clone().detach().to(device)
+        if not torch.is_tensor(state):
+            state_tensor = torch.tensor(state, dtype=torch.float32, device=device)
+        else:
+            state_tensor = state.detach().to(device)
+            
         action_tensor = self.mppi.command(state_tensor)
         return action_tensor.detach().cpu().numpy()
 
