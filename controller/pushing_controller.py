@@ -123,7 +123,7 @@ class PushingController(object):
         return self._default_parameters
 
 
-def free_pushing_cost_function(state, action, target_pose, Q_diag=[100, 100, 0.1]):
+def free_pushing_cost_function(state, action, target_pose=TARGET_POSE_FREE_TENSOR):
     """
     Compute the state cost for MPPI on a setup without obstacles.
     :param state: torch tensor of shape (B, state_size)
@@ -136,7 +136,7 @@ def free_pushing_cost_function(state, action, target_pose, Q_diag=[100, 100, 0.1
     # --- Step 1: Extract xy
     target_xy = state[:, 0:2]     # (B, 2)
     inter_xy = state[:, 3:5]      # (B, 2)
-    goal_xy = TARGET_POSE_FREE_TENSOR[:2]  # (2,)
+    goal_xy = target_pose[:2]  # (2,)
 
     # --- Step 2: cost for reaching goal
     target_error = target_xy - goal_xy     # (B, 2)
@@ -182,7 +182,7 @@ def collision_detection(state):
     return in_collision.float()
 
 
-def obstacle_avoidance_pushing_cost_function(state, action, target_pose, Q_diag=[100, 100, 0.1]):
+def obstacle_avoidance_pushing_cost_function(state, action, target_pose=TARGET_POSE_OBSTACLES_TENSOR, Q_diag=[100, 100, 0.1]):
     """
     Compute the state cost for MPPI on a setup with obstacles.
     :param state: torch tensor of shape (B, state_size)

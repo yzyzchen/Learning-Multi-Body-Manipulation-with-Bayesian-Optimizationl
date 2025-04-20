@@ -422,43 +422,6 @@ class ResidualDynamicsModel(nn.Module):
         return next_state
 
 
-def free_pushing_cost_function(state, action):
-    """
-    Compute the state cost for MPPI on a setup without obstacles.
-    :param state: torch tensor of shape (B, state_size)
-    :param action: torch tensor of shape (B, state_size)
-    :return: cost: torch tensor of shape (B,) containing the costs for each of the provided states
-    """
-    # target_pose = TARGET_POSE_FREE_TENSOR  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
-    # cost = None
-    # # --- Your code here
-    # state_pose = state
-    # error = state_pose[:, :3] - target_pose
-    # Q = torch.diag(torch.tensor([1.0, 1.0, 0.1], dtype=state.dtype, device=state.device))
-    # cost = torch.sum(error @ Q * error, dim=1)
-    # # ---
-    # return cost
-
-    # --- Step 1: Extract xy
-    target_xy = state[:, 0:2]     # (B, 2)
-    inter_xy = state[:, 3:5]      # (B, 2)
-    goal_xy = TARGET_POSE_FREE_TENSOR[:2]  # (2,)
-
-    # --- Step 2: cost for reaching goal
-    target_error = target_xy - goal_xy     # (B, 2)
-    cost_goal = torch.sum(target_error**2, dim=1)  # (B,)
-
-    # --- Step 3: alignment cost using cross product
-    v1 = target_xy - inter_xy              # vector: inter → target
-    v2 = goal_xy.unsqueeze(0) - inter_xy   # vector: inter → goal
-    cross = v1[:, 0] * v2[:, 1] - v1[:, 1] * v2[:, 0]  # 2D cross product (B,)
-    alignment_cost = cross ** 2
-
-    # --- Final cost
-    cost = cost_goal + 100.0 * alignment_cost
-    return cost
-
-
 def collision_detection(state):
     """
     Checks if the state is in collision with the obstacle.
@@ -519,75 +482,75 @@ def obstacle_avoidance_pushing_cost_function(state, action):
     return cost
 
 
-class PushingController(object):
-    """
-    MPPI-based controller
-    Since you implemented MPPI on HW2, here we will give you the MPPI for you.
-    You will just need to implement the dynamics and tune the hyperparameters and cost functions.
-    """
+# class PushingController(object):
+#     """
+#     MPPI-based controller
+#     Since you implemented MPPI on HW2, here we will give you the MPPI for you.
+#     You will just need to implement the dynamics and tune the hyperparameters and cost functions.
+#     """
 
-    def __init__(self, env, model, cost_function, num_samples=100, horizon=10):
-        self.env = env
-        self.model = model
-        self.target_state = None
-        # MPPI Hyperparameters:
-        # --- You may need to tune them
-        state_dim = env.observation_space.shape[0]
-        u_min = torch.from_numpy(env.action_space.low)
-        u_max = torch.from_numpy(env.action_space.high)
-        noise_sigma = 0.4 * torch.eye(env.action_space.shape[0])
-        lambda_value = 0.01
-        # ---
-        from controller.mppi import MPPI
-        self.mppi = MPPI(self._compute_dynamics,
-                         cost_function,
-                         nx=state_dim,
-                         num_samples=num_samples,
-                         horizon=horizon,
-                         noise_sigma=noise_sigma,
-                         lambda_=lambda_value,
-                         u_min=u_min,
-                         u_max=u_max)
+#     def __init__(self, env, model, cost_function, num_samples=100, horizon=10):
+#         self.env = env
+#         self.model = model
+#         self.target_state = None
+#         # MPPI Hyperparameters:
+#         # --- You may need to tune them
+#         state_dim = env.observation_space.shape[0]
+#         u_min = torch.from_numpy(env.action_space.low)
+#         u_max = torch.from_numpy(env.action_space.high)
+#         noise_sigma = 0.4 * torch.eye(env.action_space.shape[0])
+#         lambda_value = 0.01
+#         # ---
+#         from controller.mppi import MPPI
+#         self.mppi = MPPI(self._compute_dynamics,
+#                          cost_function,
+#                          nx=state_dim,
+#                          num_samples=num_samples,
+#                          horizon=horizon,
+#                          noise_sigma=noise_sigma,
+#                          lambda_=lambda_value,
+#                          u_min=u_min,
+#                          u_max=u_max)
 
-    def _compute_dynamics(self, state, action):
-        """
-        Compute next_state using the dynamics model self.model and the provided state and action tensors
-        :param state: torch tensor of shape (B, state_size)
-        :param action: torch tensor of shape (B, action_size)
-        :return: next_state: torch tensor of shape (B, state_size) containing the predicted states from the learned model.
-        """
-        next_state = None
-        # --- Your code here
-        next_state = self.model(state, action)
+#     def _compute_dynamics(self, state, action):
+#         """
+#         Compute next_state using the dynamics model self.model and the provided state and action tensors
+#         :param state: torch tensor of shape (B, state_size)
+#         :param action: torch tensor of shape (B, action_size)
+#         :return: next_state: torch tensor of shape (B, state_size) containing the predicted states from the learned model.
+#         """
+#         next_state = None
+#         # --- Your code here
+#         next_state = self.model(state, action)
 
 
-        # ---
-        return next_state
+#         # ---
+#         return next_state
 
-    def control(self, state):
-        """
-        Query MPPI and return the optimal action given the current state <state>
-        :param state: numpy array of shape (state_size,) representing current state
-        :return: action: numpy array of shape (action_size,) representing optimal action to be sent to the robot.
-        TO DO:
-         - Prepare the state so it can be send to the mppi controller. Note that MPPI works with torch tensors.
-         - Unpack the mppi returned action to the desired format.
-        """
-        action = None
-        state_tensor = None
-        # --- Your code here
-        state_tensor = torch.tensor(state, dtype=torch.float32)
+#     def control(self, state):
+#         """
+#         Query MPPI and return the optimal action given the current state <state>
+#         :param state: numpy array of shape (state_size,) representing current state
+#         :return: action: numpy array of shape (action_size,) representing optimal action to be sent to the robot.
+#         TO DO:
+#          - Prepare the state so it can be send to the mppi controller. Note that MPPI works with torch tensors.
+#          - Unpack the mppi returned action to the desired format.
+#         """
+#         action = None
+#         state_tensor = None
+#         # --- Your code here
+#         state_tensor = torch.tensor(state, dtype=torch.float32)
         
 
 
-        # ---
-        action_tensor = self.mppi.command(state_tensor)
-        # --- Your code here
-        action = action_tensor.cpu().detach().numpy()
+#         # ---
+#         action_tensor = self.mppi.command(state_tensor)
+#         # --- Your code here
+#         action = action_tensor.cpu().detach().numpy()
 
 
-        # ---
-        return action
+#         # ---
+#         return action
 
 # =========== AUXILIARY FUNCTIONS AND CLASSES HERE ===========
 # --- Your code here
