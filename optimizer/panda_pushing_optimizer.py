@@ -12,7 +12,7 @@ from cma import CMAEvolutionStrategy
 from controller.pushing_controller import PushingController, free_pushing_cost_function, obstacle_avoidance_pushing_cost_function
 # from model.learning_state_dynamics import free_pushing_cost_function, obstacle_avoidance_pushing_cost_function
 
-from env.panda_pushing_env import DISK_SIZE, PandaPushingEnv
+from env.panda_pushing_env import DISK_SIZE, TARGET_POSE_FREE, TARGET_POSE_OBSTACLES, PandaPushingEnv
 from optimizer.bayesian_optimization import BayesianOptimization
 from model.learning_state_dynamics import ResidualDynamicsModel
 
@@ -210,18 +210,21 @@ class UnifiedBlackboxOptimizer:
 class PandaBoxPushingStudy:
     def __init__(self, epoch, render, logdir, study_name, 
                  include_obstacle=False, 
-                 random_target=False, target_state=None, 
-                 opt_type="bayes", device="cpu", 
+                 random_target=False, 
+                 target_state=None, 
+                 opt_type="bayes", 
+                 device="cpu", 
                  step_scale=0.1, goal_scale=10., test_params = [1e-2, 2.5, 2.5, 2.5],
                  visualizer=None):
         # TODO set obstacle pose?
         self._epoch = epoch
-        self._n_step = 20
+        self._n_step = 40
         self._render = render
         self._log_dir = logdir
         # self._random_target = True if not include_obstacle and random_target else False
         self._random_target = False
-        self._target_state = np.array([0.9, 0., 0.]) if target_state is None else target_state
+        # self._target_state = np.array([0.9, 0., 0.]) if target_state is None else target_state
+        self._target_state = TARGET_POSE_OBSTACLES if include_obstacle else TARGET_POSE_FREE
         self._opt_type = opt_type
         self.test_params = test_params
 
@@ -277,8 +280,8 @@ class PandaBoxPushingStudy:
             print(f"Testing box pushing optimizer with {status} target for {self._epoch} epochs")
             parameters = self.test_params
             for _ in range(self._epoch):
-                if self._random_target:
-                    target_state = get_random_target_state()
+                # if self._random_target:
+                #     target_state = get_random_target_state()
                 print("target state: ", target_state)
                 end_state, pushing_step = run_pushing_task(self._env, self._controller, self._n_step, target_state, parameters)
                 goal_distance = np.linalg.norm(end_state[:2]-target_state[:2]) # evaluate only position, not orientation
@@ -298,8 +301,8 @@ class PandaBoxPushingStudy:
                 self._logger.update_time(suggest_time)
                 # Run trial
                 for param in parameters:
-                    if self._random_target:
-                        target_state = get_random_target_state()
+                    # if self._random_target:
+                    #     target_state = get_random_target_state()
                     end_state, pushing_step = run_pushing_task(self._env, self._controller, self._n_step, target_state, param)
                     goal_distance = np.linalg.norm(end_state[:2]-target_state[:2]) # evaluate only position, not orientation
                     
@@ -343,6 +346,8 @@ def run_pushing_task(env, controller, step, target_state, hyperparameters):
         action = np.clip(action, env.action_space.low, env.action_space.high)
         state, _, done, _ = env.step(action)
         if done:
+            # print("done: ", done)
+            # print("t state: ", target_state)
             break
     end_state = env.get_state()
     return end_state, i

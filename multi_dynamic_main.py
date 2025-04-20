@@ -11,6 +11,8 @@ import torch
 from env.panda_pushing_env import PandaPushingEnv
 from optimizer.panda_pushing_optimizer import PandaBoxPushingStudy
 from env.visualizers import GIFVisualizer
+from controller.pushing_controller import PushingController, free_pushing_cost_function, obstacle_avoidance_pushing_cost_function
+
 
 def collect_data(config):
     """Collecting data mode"""
@@ -62,7 +64,7 @@ def run_demo_with_model(config):
         visualizer=True, 
         render_every_n_steps=1,
         debug=config['debug'],
-        include_obstacle=False,
+        include_obstacle=True,
     )
     from model.learning_state_dynamics import ResidualDynamicsModel
     model = ResidualDynamicsModel(
@@ -75,11 +77,10 @@ def run_demo_with_model(config):
     model.eval()
     
     # Initialize the controller
-    from model.learning_state_dynamics import PushingController, free_pushing_cost_function, obstacle_avoidance_pushing_cost_function
     controller = PushingController(
         env=env,
         model=model,
-        cost_function=free_pushing_cost_function,
+        cost_function=obstacle_avoidance_pushing_cost_function,
         num_samples=100,
         horizon=10
     )
@@ -128,15 +129,17 @@ def run_opt_demo_with_model():
     
     # Initialize the model and environment
     # test_param_ours_obs = [0.05474454, 5.137514, 1.3101447, 8.374978]
-    # test_param_ours_obs = [0.583355 , 4.2055645, 6.232649 , 8.10915   ]
-    # test_param_ours_obs = [0.01 , 0.4, 0.4 , 0.4   ] #manual
+    # test_param_ours_obs = [0.583355 , 4.2055645, 6.232649 , 8.10915]
+    test_param_ours_obs = [0.01 , 0.4, 0.4 , 0.4   ] #manual
     # test_param_ours_obs = [0.01827849, 0.39929605, 0.8261565,  0.9678583 ] # bayesian with epoch = 50
-    test_param_ours_obs = [0.5798608491229887, 0.6832310962673614, 0.292713670102513, 0.2677121168629717] # cma with epoch = 50
+    # test_param_ours_obs = [0.5798608491229887, 0.6832310962673614, 0.292713670102513, 0.2677121168629717] # cma with epoch = 50
+    # test_param_ours_obs = [0.02527482, 0.9890001,  0.9357588,  0.96009785] # beyasian with obstacle
     # visualizer.reset()
-    test_free = PandaBoxPushingStudy(epoch=20, render=False, logdir="logs/", 
+    test_free = PandaBoxPushingStudy(epoch=20, render=True, logdir="logs/", 
                                     study_name="test", 
-                                    include_obstacle=False, 
-                                    random_target=True,
+                                    include_obstacle=True, 
+                                    random_target=False,
+                                    target_state=np.array([1.1, -0.1, 0.]),
                                     opt_type="test", 
                                     step_scale=0.1, 
                                     device="cpu",
@@ -198,7 +201,7 @@ if __name__ == "__main__":
     #                             help="start the debug mode")
 
     args = parser.parse_args()
-    # 模式分发
+    # mode distribution
     if args.command == 'collect':
         collect_config = {
             'num_trajectories': args.num_traj,
