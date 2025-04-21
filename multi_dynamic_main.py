@@ -128,8 +128,6 @@ def run_opt_demo_with_model():
     print("\n=== Load the model and run the demo with bayes optimization===")
     
     # Initialize the model and environment
-    # test_param_ours_obs = [0.05474454, 5.137514, 1.3101447, 8.374978]
-    # test_param_ours_obs = [0.583355 , 4.2055645, 6.232649 , 8.10915]
     test_param_ours_obs = [0.01 , 0.4, 0.4 , 0.4   ] #manual
     # test_param_ours_obs = [0.01827849, 0.39929605, 0.8261565,  0.9678583 ] # bayesian with epoch = 50
     # test_param_ours_obs = [0.5798608491229887, 0.6832310962673614, 0.292713670102513, 0.2677121168629717] # cma with epoch = 50

@@ -183,12 +183,6 @@ def collision_detection(state, soft_margin=0.01):
     # If either is in collision → overall collision
     return (target_collision | inter_collision).float()
 
-def get_distance_to_obstacles(state):
-    # Dummy placeholder for demo
-    # You should implement this properly based on obstacle positions
-    B = state.size(0)
-    dummy_distance = torch.ones(B, device=state.device) * 0.5  # assume safe
-    return dummy_distance
 
 def obstacle_avoidance_pushing_cost_function(state, action, 
                                              target_pose=TARGET_POSE_OBSTACLES_TENSOR, 
@@ -204,54 +198,9 @@ def obstacle_avoidance_pushing_cost_function(state, action,
     # target_pose = target_pose.to(dtype=state.dtype, device=state.device)  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
     cost = None
     # --- Your code here
-    # x = state
-    # if torch.is_tensor(Q_diag):
-    #     Q = torch.diag(Q_diag).to(dtype=state.dtype, device=state.device)
-    # else:
-    #     Q = torch.diag(torch.tensor(Q_diag, dtype=state.dtype, device=state.device))
-    # state_diff = state - target_pose
-    # cost = (state_diff @ Q @ state_diff.T).diagonal() + 100. * collision_detection(x)
-
-    # target_xy = state[:, 0:2]     # (B, 2)
-    # inter_xy = state[:, 3:5]
-    # goal_xy = target_pose[:2]
-    # target_error = target_xy - goal_xy     # (B, 2)
-    # cost_goal = torch.sum(target_error**2, dim=1)  # (B,)
-    # collision_cost = collision_detection(state)
-
-    # v1 = target_xy - inter_xy              # vector: inter → target
-    # v2 = goal_xy.unsqueeze(0) - inter_xy   # vector: inter → goal
-    # cross = v1[:, 0] * v2[:, 1] - v1[:, 1] * v2[:, 0]  # 2D cross product (B,)
-    # alignment_cost = cross ** 2
-
-    # cost = cost_goal + 1000 * collision_cost + 100 * alignment_cost
-
-    # # Ensure goal is on the same device and dtype
-    # goal_xy = target_pose[:2].to(state.device, dtype=state.dtype)
-
-    # # Step 1: Decompose state
-    # target_xy = state[:, 0:2]     # (B, 2)
-    # inter_xy = state[:, 3:5]      # (B, 2)
-
-    # # Step 2: Distance to goal (target object)
-    # target_error = target_xy - goal_xy
-    # cost_goal = torch.sum(target_error ** 2, dim=1)  # (B,)
-
-    # # Step 3: Collision cost
-    # collision_cost = collision_detection(state)  # (B,) with 0 or 1
-
     # # Dynamically adjust the weight of alignment
     # distance_to_goal = torch.norm(target_error, dim=1)
     # weight_alignment_dynamic = weight_alignment * torch.exp(-distance_to_goal)
-
-    # # Step 4: Alignment cost via 2D cross product
-    # v1 = target_xy - inter_xy               # intermediate → target
-    # v2 = goal_xy.unsqueeze(0) - inter_xy    # intermediate → goal
-    # cross = v1[:, 0] * v2[:, 1] - v1[:, 1] * v2[:, 0]
-    # alignment_cost = cross ** 2  # (B,)
-
-    # # Step 5: Combine all costs
-    # cost = cost_goal + weight_collision * collision_cost + weight_alignment_dynamic * alignment_cost
 
     # Ensure goal is on correct device
     goal_xy = target_pose[:2].to(state.device, dtype=state.dtype)
@@ -263,6 +212,27 @@ def obstacle_avoidance_pushing_cost_function(state, action,
     # Step 1: Goal distance (squared Euclidean)
     target_error = target_xy - goal_xy
     cost_goal = torch.sum(target_error ** 2, dim=1)
+
+    def get_distance_to_obstacles(state, soft_margin=0.01):
+        # Dummy placeholder for demo
+        # You should implement this properly based on obstacle positions
+        B = state.size(0)
+        dummy_distance = torch.ones(B, device=state.device) * 0.5  # assume safe
+        # obstacle_centre = OBSTACLE_CENTRE_TENSOR.to(state.device, dtype=state.dtype)
+        # obstacle_halfdims = OBSTACLE_HALFDIMS_TENSOR.to(state.device, dtype=state.dtype)
+
+        # # Compute distances from both disks
+        # def compute(pos):
+        #     delta = torch.abs(pos - obstacle_centre) - obstacle_halfdims - soft_margin
+        #     delta_clamped = torch.clamp(delta, min=0.0)
+        #     return torch.norm(delta_clamped, dim=1)
+
+        # dist_target = compute(target_xy)
+        # dist_inter = compute(inter_xy)
+
+        # return torch.minimum(dist_target, dist_inter)
+
+        return dummy_distance
 
     # Step 2: Soft obstacle cost (assumes you have a distance function)
     distance_to_obs = get_distance_to_obstacles(state)  # (B,), must return distance
