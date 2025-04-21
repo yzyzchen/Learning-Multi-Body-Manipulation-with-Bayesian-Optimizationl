@@ -153,7 +153,7 @@ def free_pushing_cost_function(state, action, target_pose=TARGET_POSE_FREE_TENSO
     return cost
 
 
-def collision_detection(state):
+def collision_detection(state, soft_margin=0.01):
     """
     Checks if the state is in collision with the obstacle.
     The obstacle geometry is known and provided in obstacle_centre and obstacle_halfdims.
@@ -195,7 +195,7 @@ def obstacle_avoidance_pushing_cost_function(state, action,
     :param action: torch tensor of shape (B, state_size)
     :return: cost: torch tensor of shape (B,) containing the costs for each of the provided states
     """
-    target_pose = target_pose#.to(dtype=state.dtype, device=state.device)  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
+    # target_pose = target_pose.to(dtype=state.dtype, device=state.device)  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
     cost = None
     # --- Your code here
     # # Dynamically adjust the weight of alignment

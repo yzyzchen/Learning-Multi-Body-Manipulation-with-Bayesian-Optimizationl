@@ -63,7 +63,7 @@ def run_demo_with_model(config):
         visualizer=True, 
         render_every_n_steps=1,
         debug=config['debug'],
-        include_obstacle=False,
+        include_obstacle=True,
     )
     from model.learning_state_dynamics import ResidualDynamicsModel
     model = ResidualDynamicsModel(
@@ -76,11 +76,10 @@ def run_demo_with_model(config):
     model.eval()
     
     # Initialize the controller
-    # from model.learning_state_dynamics import PushingController, free_pushing_cost_function, obstacle_avoidance_pushing_cost_function
     controller = PushingController(
         env=env,
         model=model,
-        cost_function=free_pushing_cost_function,
+        cost_function=obstacle_avoidance_pushing_cost_function,
         num_samples=100,
         horizon=10
     )
@@ -131,11 +130,13 @@ def run_opt_demo_with_model():
     test_param_ours_obs = [0.01 , 0.4, 0.4 , 0.4   ] #manual
     # test_param_ours_obs = [0.01827849, 0.39929605, 0.8261565,  0.9678583 ] # bayesian with epoch = 50
     # test_param_ours_obs = [0.5798608491229887, 0.6832310962673614, 0.292713670102513, 0.2677121168629717] # cma with epoch = 50
+    # test_param_ours_obs = [0.04671676, 0.7548581, 0.6731052, 0.97566706] # beyasian with obstacle
     # visualizer.reset()
     test_free = PandaBoxPushingStudy(epoch=20, render=True, logdir="logs/", 
                                     study_name="test", 
-                                    include_obstacle=False, 
-                                    random_target=True,
+                                    include_obstacle=True, 
+                                    random_target=False,
+                                    target_state=np.array([0.95, -0.1, 0.]),
                                     opt_type="test", 
                                     step_scale=0.1, 
                                     device="cpu",
@@ -197,7 +198,7 @@ if __name__ == "__main__":
     #                             help="start the debug mode")
 
     args = parser.parse_args()
-    # 模式分发
+    # mode distribution
     if args.command == 'collect':
         collect_config = {
             'num_trajectories': args.num_traj,

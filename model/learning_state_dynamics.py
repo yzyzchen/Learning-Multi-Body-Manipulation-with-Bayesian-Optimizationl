@@ -397,8 +397,6 @@ class ResidualDynamicsModel(nn.Module):
         self.fc3 = nn.Linear(100, state_dim)
         self.relu = nn.ReLU()
 
-
-
         # ---
 
     def forward(self, state, action):

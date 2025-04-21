@@ -21,8 +21,9 @@ assets_dir = os.path.join(project_root, 'assets')
 # BOX_SIZE = 0.1
 DISK_SIZE = 0.12
 
-TARGET_POSE_FREE = np.array([0.9, 0., 0.])
-TARGET_POSE_OBSTACLES = np.array([1.1, -0.1, 0.])
+TARGET_POSE_FREE = np.array([0.9 , 0., 0.])
+TARGET_POSE_OBSTACLES = np.array([0.95, -0.1, 0.])
+# TARGET_POSE_OBSTACLES = np.array([0.9, 0, 0.])
 OBSTACLE_CENTRE = np.array([0.8, 0.2, 0.])
 # OBSTACLE_HALFDIMS = np.array([0.05, 0.25, 0.05])
 OBSTACLE_HALFDIMS = np.array([0.015, 0.2, 0.05])
@@ -98,7 +99,7 @@ class PandaPushingEnv(gym.Env):
         # self.push_length = 0.02
         self.push_length = 0.05
 
-        self.space_limits = [np.array([0.05, -0.35]), np.array([.8, 0.35])]  # xy limits
+        self.space_limits = [np.array([0.05, -0.35]), np.array([0.85, 0.35])]  # xy limits
         self.observation_space = spaces.Box(low=np.array([self.space_limits[0][0], self.space_limits[0][1], -np.pi, 
                                                           self.space_limits[0][0], self.space_limits[0][1], -np.pi], dtype=np.float32),
                                             high=np.array([self.space_limits[1][0], self.space_limits[1][0], np.pi, 
@@ -179,14 +180,15 @@ class PandaPushingEnv(gym.Env):
         pos1 = np.array(p.getBasePositionAndOrientation(self.objectUid)[0])[:2]
         pos2 = np.array(p.getBasePositionAndOrientation(self.intermidiateUid)[0])[:2]
         dist = np.linalg.norm(pos1 - pos2)
-        return dist < DISK_SIZE * 1.05  # Add a small tolerance
+        return dist < DISK_SIZE * 1.1  # Add a small tolerance
 
     def _is_done(self, state):
         done = not self.observation_space.contains(state)
-
+        # if done: print("done", done)
         # 1. Goal check
         if self.include_obstacle:
             at_goal = np.sum((state[:3] - TARGET_POSE_OBSTACLES) ** 2) < 0.01
+            # print("at goal: ", at_goal)
         else:
             at_goal = np.sum((state[:3] - TARGET_POSE_FREE) ** 2) < 0.01
         done = done or at_goal
