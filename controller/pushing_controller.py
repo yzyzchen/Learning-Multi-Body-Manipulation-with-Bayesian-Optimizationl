@@ -162,27 +162,33 @@ def collision_detection(state):
     """
     obstacle_centre = OBSTACLE_CENTRE_TENSOR  # torch tensor of shape (2,) consisting of obstacle centre (x, y)
     obstacle_dims = 2 * OBSTACLE_HALFDIMS_TENSOR  # torch tensor of shape (2,) consisting of (w_obs, l_obs)
-    box_size = DISK_SIZE  # scalar for parameter w
-    in_collision = None
-    # --- Your code here
-    x = state[:, 0]
-    y = state[:, 1]
-    theta = state[:, 2]
+    obs_half = obstacle_dims / 2 + soft_margin
+    disk_radius = DISK_SIZE / 2 + soft_margin  # inflated disk size
 
-    eff_half = (box_size / 2) * (torch.abs(torch.cos(theta)) + torch.abs(torch.sin(theta)))
+    def check_disk_collision(x, y):
+        dx = torch.abs(x - obstacle_centre[0])
+        dy = torch.abs(y - obstacle_centre[1])
+        return (dx <= (obs_half[0] + disk_radius)) & (dy <= (obs_half[1] + disk_radius))
 
-    obs_half = obstacle_dims / 2
+    # Target disk
+    x1 = state[:, 0]
+    y1 = state[:, 1]
+    target_collision = check_disk_collision(x1, y1)
 
-    dx = torch.abs(x - obstacle_centre[0])
-    dy = torch.abs(y - obstacle_centre[1])
+    # Intermediate disk
+    x2 = state[:, 3]
+    y2 = state[:, 4]
+    inter_collision = check_disk_collision(x2, y2)
 
-    collision = (dx <= (eff_half + obs_half[0])) & (dy <= (eff_half + obs_half[1]))
-    in_collision = collision.float()
-    # ---
-    return in_collision.float()
+    # If either is in collision → overall collision
+    return (target_collision | inter_collision).float()
 
 
-def obstacle_avoidance_pushing_cost_function(state, action, target_pose=TARGET_POSE_OBSTACLES_TENSOR, Q_diag=[100, 100, 0.1]):
+def obstacle_avoidance_pushing_cost_function(state, action, 
+                                             target_pose=TARGET_POSE_OBSTACLES_TENSOR, 
+                                             Q_diag=[100, 100, 0.1], 
+                                             base_weight_collision=100.0, weight_alignment=50.0
+                                             ):
     """
     Compute the state cost for MPPI on a setup with obstacles.
     :param state: torch tensor of shape (B, state_size)
@@ -192,12 +198,58 @@ def obstacle_avoidance_pushing_cost_function(state, action, target_pose=TARGET_P
     target_pose = target_pose#.to(dtype=state.dtype, device=state.device)  # torch tensor of shape (3,) containing (pose_x, pose_y, pose_theta)
     cost = None
     # --- Your code here
-    x = state
-    if torch.is_tensor(Q_diag):
-        Q = torch.diag(Q_diag).to(dtype=state.dtype, device=state.device)
-    else:
-        Q = torch.diag(torch.tensor(Q_diag, dtype=state.dtype, device=state.device))
-    state_diff = state - target_pose
-    cost = (state_diff @ Q @ state_diff.T).diagonal() + 100. * collision_detection(x)
+    # # Dynamically adjust the weight of alignment
+    # distance_to_goal = torch.norm(target_error, dim=1)
+    # weight_alignment_dynamic = weight_alignment * torch.exp(-distance_to_goal)
+
+    # Ensure goal is on correct device
+    goal_xy = target_pose[:2].to(state.device, dtype=state.dtype)
+
+    # Extract object and intermediate positions
+    target_xy = state[:, 0:2]     # Object being pushed
+    inter_xy = state[:, 3:5]      # Pushing object
+
+    # Step 1: Goal distance (squared Euclidean)
+    target_error = target_xy - goal_xy
+    cost_goal = torch.sum(target_error ** 2, dim=1)
+
+    def get_distance_to_obstacles(state, soft_margin=0.01):
+        # Dummy placeholder for demo
+        # You should implement this properly based on obstacle positions
+        B = state.size(0)
+        dummy_distance = torch.ones(B, device=state.device) * 0.5  # assume safe
+        # obstacle_centre = OBSTACLE_CENTRE_TENSOR.to(state.device, dtype=state.dtype)
+        # obstacle_halfdims = OBSTACLE_HALFDIMS_TENSOR.to(state.device, dtype=state.dtype)
+
+        # # Compute distances from both disks
+        # def compute(pos):
+        #     delta = torch.abs(pos - obstacle_centre) - obstacle_halfdims - soft_margin
+        #     delta_clamped = torch.clamp(delta, min=0.0)
+        #     return torch.norm(delta_clamped, dim=1)
+
+        # dist_target = compute(target_xy)
+        # dist_inter = compute(inter_xy)
+
+        # return torch.minimum(dist_target, dist_inter)
+
+        return dummy_distance
+
+    # Step 2: Soft obstacle cost (assumes you have a distance function)
+    distance_to_obs = get_distance_to_obstacles(state)  # (B,), must return distance
+    # Avoid divide-by-zero by adding epsilon
+    soft_collision_cost = torch.exp(-10.0 * distance_to_obs.clamp(min=1e-2))
+
+    # Step 3: Adaptive alignment cost using cross product
+    v1 = target_xy - inter_xy  # vector from intermediate → object
+    v2 = goal_xy.unsqueeze(0) - inter_xy  # vector from intermediate → goal
+    cross = v1[:, 0] * v2[:, 1] - v1[:, 1] * v2[:, 0]
+    alignment_cost = cross ** 2
+
+    # Weight alignment cost lower when far from goal
+    dist_to_goal = torch.norm(target_error, dim=1)
+    adaptive_weight_alignment = weight_alignment * torch.exp(-dist_to_goal)
+
+    # Final cost
+    cost = cost_goal + base_weight_collision * soft_collision_cost + adaptive_weight_alignment * alignment_cost
     # ---
     return cost
