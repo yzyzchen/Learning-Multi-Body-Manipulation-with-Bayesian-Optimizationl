@@ -16,20 +16,23 @@ class AcquisitionFunction:
             * "ts" is the Thompson Sampling method
             * "ei" is the Expected Improvement method
         """
-        if mode not in ["ts", "ei"]:
+        if mode not in ["ts", "ei", "ucb"]:
             err = "The acquisition function " \
                   "{} has not been implemented, " \
                   "please choose one of ts or ei.".format(mode)
             raise NotImplementedError(err)
         self.mode = mode
+        self.beta = 0.2
         self.norm = Normal(0., 1.)
     
     def apply(self, pred_distrib, y_min):
         if self.mode == "ts":
             return self._thompson_sampling(pred_distrib)
-        else:
+        elif self.mode == "ei":
             return self._expected_improvement(pred_distrib, y_min)
-
+        elif self.mode == "ucb":
+            return self._ucb(pred_distrib)
+        
     def _thompson_sampling(self, distrib):
         return distrib.sample()
 
@@ -37,6 +40,13 @@ class AcquisitionFunction:
         a = (distrib.mean + y_min)
         z = a / (distrib.stddev)
         return a * self.norm.cdf(z) + distrib.stddev * self.norm.log_prob(z).exp()
+    
+    def _ucb(self, distrib):
+        """
+        UCB(x) = mean(x) - beta * stddev(x)
+        (for minimization; flip sign if doing maximization)
+        """
+        return distrib.mean - self.beta * distrib.stddev
 
 
 class BayesianOptimization:

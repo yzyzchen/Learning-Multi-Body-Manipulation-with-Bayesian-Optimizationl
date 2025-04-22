@@ -231,7 +231,7 @@ class PandaBoxPushingStudy:
         param_dict = {}
         param_dict["lower"] = [1e-8, 1e-8, 1e-8, 1e-8]
         param_dict["upper"] = [1, 1, 1, 1]
-        param_dict["acq_mode"] = "ei"
+        param_dict["acq_mode"] = "ucb"
         param_dict["initial_mean"] = [0.5, 0.5, 0.5, 0.5]
         param_dict["initial_sigma"] = 0.2
         param_dict["popsize"] = 3

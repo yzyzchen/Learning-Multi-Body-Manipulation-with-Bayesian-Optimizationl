@@ -130,9 +130,11 @@ def run_opt_demo_with_model():
     test_param_ours_obs = [0.01 , 0.4, 0.4 , 0.4   ] #manual
     # test_param_ours_obs = [0.01827849, 0.39929605, 0.8261565,  0.9678583 ] # bayesian with epoch = 50
     # test_param_ours_obs = [0.5798608491229887, 0.6832310962673614, 0.292713670102513, 0.2677121168629717] # cma with epoch = 50
-    # test_param_ours_obs = [0.04671676, 0.7548581, 0.6731052, 0.97566706] # beyasian with obstacle
+    test_param_ours_obs = [0.04671676, 0.7548581, 0.6731052, 0.97566706] # beyasian with obstacle with ei
+    # test_param_ours_obs = [0.03239448, 0.98241866, 0.20590188, 0.8992659 ]# bayesian with epoch = 50 with UCB, current best
+    # test_param_ours_obs = [0.6979, 0.3960, 0.5022, 0.3308]
     # visualizer.reset()
-    test_free = PandaBoxPushingStudy(epoch=20, render=True, logdir="logs/", 
+    test_free = PandaBoxPushingStudy(epoch=20, render=False, logdir="logs/", 
                                     study_name="test", 
                                     include_obstacle=True, 
                                     random_target=False,
@@ -141,7 +143,8 @@ def run_opt_demo_with_model():
                                     step_scale=0.1, 
                                     device="cpu",
                                     test_params=test_param_ours_obs,
-                                    visualizer=None)
+                                    visualizer=None,
+                                    )
     test_free.run()
 
     cost_mean, cost_var = test_free.get_cost_mean_and_var()
