@@ -415,7 +415,7 @@ class PandaPushingEnv(gym.Env):
         # intermidiate_disk on the LEFT (pushed by robot)
         intermidiate_pose_planar = np.array([center_x + radius -2 * radius * np.cos(angle_offset), y - 2*np.sin(angle_offset)*radius, theta])
         # intermidiate_pose_planar = np.array([center_x - radius, y, theta])
-        print("Angle offset between intermediate and target object: ", angle_offset)
+        # print("Angle offset between intermediate and target object: ", angle_offset)
         # object_disk on the RIGHT (goal is to reach the target)
         object_pose_planar = np.array([center_x + radius, y, theta])
 

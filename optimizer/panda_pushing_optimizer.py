@@ -135,7 +135,7 @@ class UnifiedBlackboxOptimizer:
                                                    device=device)
             
         elif opt_type == "cma":
-            initial_mean = param_dict.get("initial_mean", [0, 0, 0, 0])
+            initial_mean = param_dict.get("initial_mean", [0.6, 0.6, 0.3, 0.3])
             # initial_mean = [3.583136148286834, 2.7933472511972566, 3.0060063190645026, 1.947791653714797]
             initial_sigma = param_dict.get("initial_sigma", 0.5)
             popsize = param_dict.get("popsize", 2)

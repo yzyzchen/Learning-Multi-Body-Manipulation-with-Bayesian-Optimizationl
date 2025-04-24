@@ -1,0 +1,386 @@
+(bayesian_opt_multidynamic) zhiyin@zhiyin-R9000P:~/project/bayesian opt for multi dynamic$ python multi_dynamic_main.py opt_demo_model
+pybullet build time: Mar 25 2025 16:00:04
+
+=== Load the model and run the demo with bayes optimization===
+argv[0]=--opengl2
+Testing box pushing optimizer with fixed target for 50 epochs
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.48365881700974256
+detached, done with this trajectory
+goal dist:  0.22715871294263065
+--------------------------------------------------
+COST: 12.5272
+STEP: 23
+GOAL: False
+MIN COST: 12.5272
+PARAM: ['0.0324', '0.9824', '0.2059', '0.8993']
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.2468265265781342
+goal dist:  0.09646038055727013
+--------------------------------------------------
+COST: 1.1965
+STEP: 11
+GOAL: True
+MIN COST: 1.1965
+PARAM: ['0.0324', '0.9824', '0.2059', '0.8993']
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.1369155558400762
+goal dist:  0.09313460485796274
+--------------------------------------------------
+COST: 1.4931
+STEP: 14
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.01571305605879547
+goal dist:  0.1523110155225061
+--------------------------------------------------
+COST: 11.7523
+STEP: 16
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.21240762408111963
+goal dist:  0.07609653838336729
+--------------------------------------------------
+COST: 1.7761
+STEP: 17
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.14498983982118957
+detached, done with this trajectory
+goal dist:  0.20416478818137668
+--------------------------------------------------
+COST: 11.1042
+STEP: 9
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.23461532375402339
+goal dist:  0.09962685478983195
+--------------------------------------------------
+COST: 1.4996
+STEP: 14
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.17969848290465873
+goal dist:  0.15126980378028973
+--------------------------------------------------
+COST: 12.0513
+STEP: 19
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.3642132268343482
+goal dist:  0.09061266609167437
+--------------------------------------------------
+COST: 1.6906
+STEP: 16
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.03522045359431919
+goal dist:  0.07196495100546493
+--------------------------------------------------
+COST: 1.1720
+STEP: 11
+GOAL: True
+MIN COST: 1.1720
+PARAM: ['0.0324', '0.9824', '0.2059', '0.8993']
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.014591751030091138
+goal dist:  0.11112009572106729
+--------------------------------------------------
+COST: 1.0111
+STEP: 9
+GOAL: True
+MIN COST: 1.0111
+PARAM: ['0.0324', '0.9824', '0.2059', '0.8993']
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.27793461482304704
+detached, done with this trajectory
+goal dist:  0.21370407354373797
+--------------------------------------------------
+COST: 11.8137
+STEP: 16
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.16348235171939196
+goal dist:  0.11064837673230857
+--------------------------------------------------
+COST: 1.2106
+STEP: 11
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.005641345993985913
+detached, done with this trajectory
+goal dist:  0.1986074417603359
+--------------------------------------------------
+COST: 11.6986
+STEP: 15
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.3561059274657329
+detached, done with this trajectory
+goal dist:  0.1634356057203405
+--------------------------------------------------
+COST: 11.4634
+STEP: 13
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.5078896486591229
+goal dist:  0.100318717153684
+--------------------------------------------------
+COST: 1.2003
+STEP: 11
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.43740990267384927
+goal dist:  0.12179936307525853
+--------------------------------------------------
+COST: 11.7218
+STEP: 16
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.3069545363855879
+detached, done with this trajectory
+goal dist:  0.2327944702162626
+--------------------------------------------------
+COST: 10.8328
+STEP: 6
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.11000420882423423
+goal dist:  0.09704903797274254
+--------------------------------------------------
+COST: 1.2970
+STEP: 12
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.3682470282808441
+detached, done with this trajectory
+goal dist:  0.18375021388254878
+--------------------------------------------------
+COST: 11.6838
+STEP: 15
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.08806178811834409
+goal dist:  0.09886444255997824
+--------------------------------------------------
+COST: 0.8989
+STEP: 8
+GOAL: True
+MIN COST: 0.8989
+PARAM: ['0.0324', '0.9824', '0.2059', '0.8993']
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.05534549640797537
+goal dist:  0.17968741538248514
+--------------------------------------------------
+COST: 11.8797
+STEP: 17
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.24535424948569545
+goal dist:  0.09006426087029278
+--------------------------------------------------
+COST: 1.0901
+STEP: 10
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.34835477905870627
+detached, done with this trajectory
+goal dist:  0.17758549280465202
+--------------------------------------------------
+COST: 11.7776
+STEP: 16
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.08715459547433846
+goal dist:  0.08658568058909763
+--------------------------------------------------
+COST: 0.9866
+STEP: 9
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.522344167935996
+detached, done with this trajectory
+goal dist:  0.2859653020377131
+--------------------------------------------------
+COST: 12.7860
+STEP: 25
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.179827171771765
+goal dist:  0.08943810057163687
+--------------------------------------------------
+COST: 0.9894
+STEP: 9
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.40742323513496637
+goal dist:  0.09458022743158503
+--------------------------------------------------
+COST: 0.9946
+STEP: 9
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.23686133831702294
+goal dist:  0.0920943665760697
+--------------------------------------------------
+COST: 0.8921
+STEP: 8
+GOAL: True
+MIN COST: 0.8921
+PARAM: ['0.0324', '0.9824', '0.2059', '0.8993']
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.2632027041481288
+goal dist:  0.08514336582809114
+--------------------------------------------------
+COST: 0.9851
+STEP: 9
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.14114361834845923
+goal dist:  0.09521553218115769
+--------------------------------------------------
+COST: 1.3952
+STEP: 13
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.4284450957247099
+goal dist:  0.10742228770912693
+--------------------------------------------------
+COST: 1.1074
+STEP: 10
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.41653840908845563
+goal dist:  0.14034844972439264
+--------------------------------------------------
+COST: 11.6403
+STEP: 15
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.2582730026129495
+goal dist:  0.09812607689587967
+--------------------------------------------------
+COST: 1.2981
+STEP: 12
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.33870215458586794
+goal dist:  0.09244109491837424
+--------------------------------------------------
+COST: 2.3924
+STEP: 23
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.017800549738681948
+goal dist:  0.10401680719000202
+--------------------------------------------------
+COST: 1.8040
+STEP: 17
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.0928381169051713
+goal dist:  0.09591861588992903
+--------------------------------------------------
+COST: 1.2959
+STEP: 12
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.1917463884810484
+detached, done with this trajectory
+goal dist:  0.21070754395810054
+--------------------------------------------------
+COST: 11.6107
+STEP: 14
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.3663224802327898
+goal dist:  0.10550760536168116
+--------------------------------------------------
+COST: 1.3055
+STEP: 12
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.41230636613428395
+goal dist:  0.08298455212378525
+--------------------------------------------------
+COST: 0.8830
+STEP: 8
+GOAL: True
+MIN COST: 0.8830
+PARAM: ['0.0324', '0.9824', '0.2059', '0.8993']
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.30106132497710547
+goal dist:  0.10068299996533757
+--------------------------------------------------
+COST: 1.3007
+STEP: 12
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.4065784144562967
+goal dist:  0.16132840534232312
+--------------------------------------------------
+COST: 12.1613
+STEP: 20
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.22561518518714863
+goal dist:  0.10832306521170575
+--------------------------------------------------
+COST: 1.4083
+STEP: 13
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.18293919838383688
+goal dist:  0.0923085934866081
+--------------------------------------------------
+COST: 1.1923
+STEP: 11
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.44748397897807957
+goal dist:  0.08618846435477723
+--------------------------------------------------
+COST: 1.5862
+STEP: 15
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.3120631560086174
+goal dist:  0.14688154840483728
+--------------------------------------------------
+COST: 12.0469
+STEP: 19
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.2625068234211786
+goal dist:  0.09947754961959221
+--------------------------------------------------
+COST: 0.8995
+STEP: 8
+GOAL: True
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.4687783610123225
+detached, done with this trajectory
+goal dist:  0.21578618109703915
+--------------------------------------------------
+COST: 12.6158
+STEP: 24
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  0.4754753432874488
+detached, done with this trajectory
+goal dist:  0.19315687397370393
+--------------------------------------------------
+COST: 11.9932
+STEP: 18
+GOAL: False
+target state:  [ 0.95 -0.1   0.  ]
+Angle offset between intermediate and target object:  -0.0904336643549597
+goal dist:  0.10091554182897634
+--------------------------------------------------
+COST: 1.1009
+STEP: 10
+GOAL: True
+Cost Mean: 5.2903
+Cost Variance: 26.5242
+cost_mean 5.290275483115592
+cost_var 26.52424852172349

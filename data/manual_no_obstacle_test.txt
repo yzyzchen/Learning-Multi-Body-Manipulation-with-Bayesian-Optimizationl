@@ -1,0 +1,359 @@
+(tensor) (base) yuzhou@Yuzhous-MacBook-Pro-8 bayesian_opt_multi_dynamic % python multi_dynamic_main.py opt_demo_model
+pybullet build time: Nov  5 2024 13:54:07
+
+=== Load the model and run the demo with bayes optimization===
+argv[0]=--opengl2
+/Users/yuzhou/Desktop/bayesian_opt_multi_dynamic/optimizer/panda_pushing_optimizer.py:252: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self._dynamics_model.load_state_dict(torch.load(BOX_MULTI_RESIDUAL_MODEL))
+Testing box pushing optimizer with fixed target for 50 epochs
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.09567926005988422
+--------------------------------------------------
+COST: 12.4957
+STEP: 24
+GOAL: False
+MIN COST: 12.4957
+PARAM: ['0.7000', '0.4000', '0.5000', '0.3000']
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.10520406674506182
+--------------------------------------------------
+COST: 12.1052
+STEP: 20
+GOAL: False
+MIN COST: 12.1052
+PARAM: ['0.7000', '0.4000', '0.5000', '0.3000']
+target state:  [0.9 0.  0. ]
+goal dist:  0.09889703093421179
+--------------------------------------------------
+COST: 2.0989
+STEP: 20
+GOAL: True
+MIN COST: 2.0989
+PARAM: ['0.7000', '0.4000', '0.5000', '0.3000']
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.09082007265432335
+--------------------------------------------------
+COST: 13.4908
+STEP: 34
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.07627624225947083
+--------------------------------------------------
+COST: 1.8763
+STEP: 18
+GOAL: True
+MIN COST: 1.8763
+PARAM: ['0.7000', '0.4000', '0.5000', '0.3000']
+target state:  [0.9 0.  0. ]
+goal dist:  0.07148622444655743
+--------------------------------------------------
+COST: 1.7715
+STEP: 17
+GOAL: True
+MIN COST: 1.7715
+PARAM: ['0.7000', '0.4000', '0.5000', '0.3000']
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.12190925479190509
+--------------------------------------------------
+COST: 12.4219
+STEP: 23
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.10372573197494935
+--------------------------------------------------
+COST: 2.9037
+STEP: 28
+GOAL: True
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.2251351340172734
+--------------------------------------------------
+COST: 11.6251
+STEP: 14
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.15900449844702516
+--------------------------------------------------
+COST: 11.9590
+STEP: 18
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.047085218423231046
+--------------------------------------------------
+COST: 1.5471
+STEP: 15
+GOAL: True
+MIN COST: 1.5471
+PARAM: ['0.7000', '0.4000', '0.5000', '0.3000']
+target state:  [0.9 0.  0. ]
+goal dist:  0.06753041642967707
+--------------------------------------------------
+COST: 1.8675
+STEP: 18
+GOAL: True
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.29867839205551644
+--------------------------------------------------
+COST: 11.2987
+STEP: 10
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.1363965504909985
+--------------------------------------------------
+COST: 11.7364
+STEP: 16
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.11364847586346795
+--------------------------------------------------
+COST: 12.4136
+STEP: 23
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.218911862801743
+--------------------------------------------------
+COST: 11.9189
+STEP: 17
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.07659290972146407
+--------------------------------------------------
+COST: 13.0766
+STEP: 30
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.0720653078775157
+--------------------------------------------------
+COST: 2.7721
+STEP: 27
+GOAL: True
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.22277162809597637
+--------------------------------------------------
+COST: 11.6228
+STEP: 14
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.23124216862614197
+--------------------------------------------------
+COST: 11.5312
+STEP: 13
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.13535137612989004
+--------------------------------------------------
+COST: 12.1354
+STEP: 20
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.12960610324608965
+--------------------------------------------------
+COST: 12.1296
+STEP: 20
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.1137622536716713
+--------------------------------------------------
+COST: 1.9138
+STEP: 18
+GOAL: True
+target state:  [0.9 0.  0. ]
+goal dist:  0.08077525447677449
+--------------------------------------------------
+COST: 2.6808
+STEP: 26
+GOAL: True
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.08043012201262288
+--------------------------------------------------
+COST: 12.5804
+STEP: 25
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.05416698540656187
+--------------------------------------------------
+COST: 1.6542
+STEP: 16
+GOAL: True
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.1301379142518189
+--------------------------------------------------
+COST: 11.6301
+STEP: 15
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.07444172908773446
+--------------------------------------------------
+COST: 1.6744
+STEP: 16
+GOAL: True
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.12545329071539116
+--------------------------------------------------
+COST: 11.9255
+STEP: 18
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.25459698383603385
+--------------------------------------------------
+COST: 11.7546
+STEP: 15
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.05198071678792105
+--------------------------------------------------
+COST: 1.5520
+STEP: 15
+GOAL: True
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.1468190271386539
+--------------------------------------------------
+COST: 11.8468
+STEP: 17
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.14509349788003995
+--------------------------------------------------
+COST: 12.7451
+STEP: 26
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.26412963069900613
+--------------------------------------------------
+COST: 11.2641
+STEP: 10
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.06966015379324211
+--------------------------------------------------
+COST: 2.0697
+STEP: 20
+GOAL: True
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.30661598719941946
+--------------------------------------------------
+COST: 11.1066
+STEP: 8
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.181324231462026
+--------------------------------------------------
+COST: 12.0813
+STEP: 19
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.2977751044509121
+--------------------------------------------------
+COST: 11.3978
+STEP: 11
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.06726484606755623
+--------------------------------------------------
+COST: 13.1673
+STEP: 31
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.10958209035677294
+--------------------------------------------------
+COST: 12.0096
+STEP: 19
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.30784759520219385
+--------------------------------------------------
+COST: 11.2078
+STEP: 9
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.08520877912721884
+--------------------------------------------------
+COST: 2.2852
+STEP: 22
+GOAL: True
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.1444694044112124
+--------------------------------------------------
+COST: 11.9445
+STEP: 18
+GOAL: False
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.08801119564142036
+--------------------------------------------------
+COST: 13.3880
+STEP: 33
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.08284048751401221
+--------------------------------------------------
+COST: 1.4828
+STEP: 14
+GOAL: True
+MIN COST: 1.4828
+PARAM: ['0.7000', '0.4000', '0.5000', '0.3000']
+target state:  [0.9 0.  0. ]
+goal dist:  0.09510425909209559
+--------------------------------------------------
+COST: 2.2951
+STEP: 22
+GOAL: True
+target state:  [0.9 0.  0. ]
+goal dist:  0.09434520801076429
+--------------------------------------------------
+COST: 1.3943
+STEP: 13
+GOAL: True
+MIN COST: 1.3943
+PARAM: ['0.7000', '0.4000', '0.5000', '0.3000']
+target state:  [0.9 0.  0. ]
+detached, done with this trajectory
+goal dist:  0.26609081153217634
+--------------------------------------------------
+COST: 11.2661
+STEP: 10
+GOAL: False
+target state:  [0.9 0.  0. ]
+goal dist:  0.06913657088136234
+--------------------------------------------------
+COST: 1.4691
+STEP: 14
+GOAL: True
+target state:  [0.9 0.  0. ]
+goal dist:  0.14509062444692764
+--------------------------------------------------
+COST: 12.1451
+STEP: 20
+GOAL: False
+Cost Mean: 8.4146
+Cost Variance: 23.7435
+cost_mean 8.414603453624919
+cost_var 23.743547821514674
+(tensor) (base) yuzhou@Yuzhous-MacBook-Pro-8 bayesian_opt_multi_dynamic % 

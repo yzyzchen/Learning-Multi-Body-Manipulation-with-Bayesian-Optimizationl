@@ -127,18 +127,22 @@ def run_opt_demo_with_model():
     print("\n=== Load the model and run the demo with bayes optimization===")
     
     # Initialize the model and environment
-    test_param_ours_obs = [0.01 , 0.4, 0.4 , 0.4   ] #manual
-    # test_param_ours_obs = [0.01827849, 0.39929605, 0.8261565,  0.9678583 ] # bayesian with epoch = 50
-    # test_param_ours_obs = [0.5798608491229887, 0.6832310962673614, 0.292713670102513, 0.2677121168629717] # cma with epoch = 50
-    test_param_ours_obs = [0.04671676, 0.7548581, 0.6731052, 0.97566706] # beyasian with obstacle with ei
-    # test_param_ours_obs = [0.03239448, 0.98241866, 0.20590188, 0.8992659 ]# bayesian with epoch = 50 with UCB, current best
-    # test_param_ours_obs = [0.6979, 0.3960, 0.5022, 0.3308]
+    # test_param_ours_obs = [0.01 , 0.4, 0.4 , 0.4] #manual, with and without obstacle
+    test_param_ours_obs = [0.7, 0.4, 0.5, 0.3]
+    # test_param_ours_obs = [0.04671676, 0.7548581, 0.6731052, 0.97566706] # beyasian, EI, obstacle, epoch = 50
+    # test_param_ours_obs = [4.1003036e-04,5.4347056e-01,9.9732959e-01,3.0594563e-01] # beyasian, EI, obstacle, epoch = 200(current best)
+    # test_param_ours_obs = [0.03239448, 0.98241866, 0.20590188, 0.8992659 ]# beyasian, UCB, obstacle, epoch = 50
+    # test_param_ours_obs =[0.00183518, 0.82119733, 0.6133683, 0.6450437 ] ## beyasian, UCB, obstacle, epoch = 200
+    test_param_ours_obs = [np.float64(0.137105297951578), np.float64(0.1926368343570713), np.float64(0.5743182937039544), np.float64(0.4428992162255692)] #cma, epoch=50, obstacle
+
+    # test_param_ours_obs = [0.6, 0.6, 0.3, 0.3] # cma with epoch = 50
+    # test_param_ours_obs =[np.float64(0.8015195797946554), np.float64(0.22133814572354707), np.float64(0.7132917196024686), np.float64(0.26834185111069686)]
     # visualizer.reset()
-    test_free = PandaBoxPushingStudy(epoch=20, render=False, logdir="logs/", 
+    test_free = PandaBoxPushingStudy(epoch=50, render=False, logdir="logs/", 
                                     study_name="test", 
-                                    include_obstacle=True, 
+                                    include_obstacle=False, 
                                     random_target=False,
-                                    target_state=np.array([0.95, -0.1, 0.]),
+                                    target_state=np.array([0.9, 0, 0.]),
                                     opt_type="test", 
                                     step_scale=0.1, 
                                     device="cpu",
