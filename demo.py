@@ -46,25 +46,49 @@ def print_visualization_warning():
 # ========================== #
 # Prompt before each method
 # ========================== #
-def prompt_to_start(task_name, step_number, epoch):
+import threading
+
+# Shared flag
+user_wants_to_skip = False
+
+def wait_for_enter():
+    global user_wants_to_skip
+    input()
+    user_wants_to_skip = True
+
+def prompt_to_start(task_name, step_number, epoch, wait_seconds=2):
+    global user_wants_to_skip
+    user_wants_to_skip = False
+
     print(TerminalColors.OKGREEN + f"Step {step_number}: {task_name} for {epoch} epoch(s)!" + TerminalColors.ENDC)
-    print(TerminalColors.OKGREEN + "Note that the visualization window may lay at the bottom!" + TerminalColors.ENDC)
-    print(TerminalColors.OKGREEN + "Press Enter immediately to SKIP this pushing, or wait to continue automatically." + TerminalColors.ENDC)
-    user_input = input(TerminalColors.OKGREEN + "(Press Enter to skip, otherwise wait and pushing will start): " + TerminalColors.ENDC)
-    if user_input.strip() == "":
+    print(TerminalColors.OKGREEN + f"Waiting {wait_seconds} seconds... (Press Enter now to SKIP this step!)" + TerminalColors.ENDC)
+
+    input_thread = threading.Thread(target=wait_for_enter)
+    input_thread.daemon = True
+    input_thread.start()
+
+    for remaining in range(wait_seconds, 0, -1):
+        if user_wants_to_skip:
+            break
+        print(f"{remaining}...", end=" ", flush=True)
+        time.sleep(1)
+    print()
+
+    if user_wants_to_skip:
         print(TerminalColors.RED + f"Skipping Step {step_number}: {task_name}..." + TerminalColors.ENDC)
         return False
-    print("Confirmed")
-    print_visualization_warning()
-    time.sleep(2)
-    return True
+    else:
+        print("Confirmed: Start pushing!")
+        print_visualization_warning()
+        time.sleep(2)
+        return True
 
 # ========================== #
 #          Main Program
 # ========================== #
 if __name__ == "__main__":
     # Basic settings
-    EPOCH = 5
+    EPOCH = 1
     RENDER = True
     LOGDIR = "logs/"
     DEVICE = "cpu"
@@ -103,8 +127,9 @@ if __name__ == "__main__":
     common_no_obs = {
         "epoch": EPOCH,
         "render": RENDER,
+        "logdir": LOGDIR, 
         "include_obstacle": False,
-        "random_target": False,
+        # "random_target": False,
         "target_state": np.array([0.9, 0, 0]),
         "step_scale": 0.1,
         "device": DEVICE,
@@ -139,8 +164,9 @@ if __name__ == "__main__":
     common_with_obs = {
         "epoch": EPOCH,
         "render": RENDER,
+        "logdir": LOGDIR, 
         "include_obstacle": True,
-        "random_target": False,
+        # "random_target": False,
         "target_state": np.array([0.95, -0.1, 0]),
         "step_scale": 0.1,
         "device": DEVICE,
