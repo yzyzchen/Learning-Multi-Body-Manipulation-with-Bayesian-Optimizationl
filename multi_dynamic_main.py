@@ -13,6 +13,11 @@ from optimizer.panda_pushing_optimizer import PandaBoxPushingStudy
 from env.visualizers import GIFVisualizer
 from controller.pushing_controller import PushingController, free_pushing_cost_function, obstacle_avoidance_pushing_cost_function
 
+PARAM_MANUAL = [0.7, 0.4, 0.5, 0.3]
+PARAM_EI = [4.1003036e-04,5.4347056e-01,9.9732959e-01,3.0594563e-01] # beyasian, EI, obstacle, epoch = 200(current best)
+PARAM_UCB =[0.00183518, 0.82119733, 0.6133683, 0.6450437 ] ## beyasian, UCB, obstacle, epoch = 200
+PARAM_CMA = [0.137105297951578, 0.1926368343570713, 0.5743182937039544, 0.4428992162255692] #cma, epoch=200, obstacle
+
 def collect_data(config):
     """Collecting data mode"""
     print("\n=== collecting data mode ===")
@@ -127,21 +132,11 @@ def run_opt_demo_with_model():
     print("\n=== Load the model and run the demo with bayes optimization===")
     
     # Initialize the model and environment
-    # test_param_ours_obs = [0.01 , 0.4, 0.4 , 0.4] #manual, with and without obstacle
-    test_param_ours_obs = [0.7, 0.4, 0.5, 0.3]
-    # test_param_ours_obs = [0.04671676, 0.7548581, 0.6731052, 0.97566706] # beyasian, EI, obstacle, epoch = 50
-    # test_param_ours_obs = [4.1003036e-04,5.4347056e-01,9.9732959e-01,3.0594563e-01] # beyasian, EI, obstacle, epoch = 200(current best)
-    # test_param_ours_obs = [0.03239448, 0.98241866, 0.20590188, 0.8992659 ]# beyasian, UCB, obstacle, epoch = 50
-    # test_param_ours_obs =[0.00183518, 0.82119733, 0.6133683, 0.6450437 ] ## beyasian, UCB, obstacle, epoch = 200
     test_param_ours_obs = [np.float64(0.137105297951578), np.float64(0.1926368343570713), np.float64(0.5743182937039544), np.float64(0.4428992162255692)] #cma, epoch=50, obstacle
-
-    # test_param_ours_obs = [0.6, 0.6, 0.3, 0.3] # cma with epoch = 50
-    # test_param_ours_obs =[np.float64(0.8015195797946554), np.float64(0.22133814572354707), np.float64(0.7132917196024686), np.float64(0.26834185111069686)]
     # visualizer.reset()
     test_free = PandaBoxPushingStudy(epoch=50, render=False, logdir="logs/", 
                                     study_name="test", 
                                     include_obstacle=False, 
-                                    random_target=False,
                                     target_state=np.array([0.9, 0, 0.]),
                                     opt_type="test", 
                                     step_scale=0.1, 

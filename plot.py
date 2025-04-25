@@ -23,7 +23,7 @@ def parse_results(text):
             success.append(goal)
     return steps, costs, success
 
-def plot_comparison_4(file1, file2, file3, file4,
+def plot_comparison(file1, file2, file3, file4,
                       labels=("Method 1", "Method 2", "Method 3", "Method 4"),
                       save_path="results/comparison_plot.png"):
     # Load and parse all 4 files
@@ -72,16 +72,16 @@ def plot_comparison_4(file1, file2, file3, file4,
     plt.savefig(save_path, dpi=300)
     plt.close()
 
-plot_comparison_4(
+plot_comparison(
     "data/bayes_ei_test.txt",
     "data/bayes_ucb_test.txt",
     "data/cma.txt",
     "data/manual_test.txt",
     labels=("BayesOpt (EI)", "BayesOpt (UCB)", "CMA-ES", "Manual"),
-    save_path="results/plot.png"
+    save_path="results/plot_obstacle.png"
 )
 
-# plot_comparison_4(
+# plot_comparison(
 #     "data/bayes_ei_no_obstacle_test.txt",
 #     "data/bayes_ucb_no_obstacle_test.txt",
 #     "data/cma_no_obstacle.txt",

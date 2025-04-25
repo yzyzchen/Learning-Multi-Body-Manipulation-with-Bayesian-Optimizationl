@@ -10,13 +10,13 @@ from torch.distributions import Normal
 
 
 class AcquisitionFunction:
-    def __init__(self, mode="ts") -> None:
+    def __init__(self, mode="ei") -> None:
         """
-        mode: {"ts", "ei"}
-            * "ts" is the Thompson Sampling method
+        mode: {"ei", "ucb"}
             * "ei" is the Expected Improvement method
+            * "ucb" is the Upper Confidence Bound method
         """
-        if mode not in ["ts", "ei", "ucb"]:
+        if mode not in ["ei", "ucb"]:
             err = "The acquisition function " \
                   "{} has not been implemented, " \
                   "please choose one of ts or ei.".format(mode)
@@ -26,15 +26,10 @@ class AcquisitionFunction:
         self.norm = Normal(0., 1.)
     
     def apply(self, pred_distrib, y_min):
-        if self.mode == "ts":
-            return self._thompson_sampling(pred_distrib)
-        elif self.mode == "ei":
+        if self.mode == "ei":
             return self._expected_improvement(pred_distrib, y_min)
         elif self.mode == "ucb":
             return self._ucb(pred_distrib)
-        
-    def _thompson_sampling(self, distrib):
-        return distrib.sample()
 
     def _expected_improvement(self, distrib, y_min):
         a = (distrib.mean + y_min)
@@ -85,17 +80,6 @@ class BayesianOptimization:
         self._noise_level = 1e-3
         self._model_lr = 0.1
         self._model_epoch = 50
-        # self.reset_seed(seed)
-    
-    def minimize(self, objective, n_iter:int):
-        assert n_iter > self.n_warmup
-        for _ in range(n_iter):
-            next_sample = self.suggest()
-            next_objective = objective(next_sample)
-            self.register(next_objective)
-            
-        xval, fval = self.get_result()
-        return xval, fval
 
     def suggest(self) -> Tensor:
         if self._X.shape[0] <= self.n_warmup:
@@ -149,17 +133,3 @@ class BayesianOptimization:
 
     def get_result(self):
         return self._X_best.detach().cpu().numpy(), self._minimum.item()
-    
-    def get_dataset(self):
-        return self._X, self._y
-
-    def reset_seed(self, seed):
-        """
-        Reset random seed to the specific number
-        Inputs:
-        - number: A seed number to use
-        """
-        random.seed(seed)
-        np.random.seed(seed)
-        torch.manual_seed(seed)
-        return
