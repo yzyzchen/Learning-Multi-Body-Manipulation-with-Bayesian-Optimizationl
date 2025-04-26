@@ -21,14 +21,6 @@ from optimizer.panda_pushing_optimizer import PandaBoxPushingStudy
 from env.visualizers import GIFVisualizer
 
 # ========================== #
-#        Set random seeds    #
-# ========================== #
-seed = 666
-random.seed(seed)
-np.random.seed(seed)
-torch.manual_seed(seed)
-
-# ========================== #
 #        Terminal Colors     #
 # ========================== #
 class TerminalColors:
@@ -39,8 +31,7 @@ class TerminalColors:
 
 def print_visualization_warning():
     print(TerminalColors.RED + TerminalColors.BOLD + "=====================================" + TerminalColors.ENDC)
-    for _ in range(3):
-        print(TerminalColors.RED + TerminalColors.BOLD + "Attention: Visualization Window May Be Hidden Below!" + TerminalColors.ENDC)
+    print(TerminalColors.RED + TerminalColors.BOLD + "Attention: Visualization Window May Be Hidden Below!" + TerminalColors.ENDC)
     print(TerminalColors.RED + TerminalColors.BOLD + "=====================================" + TerminalColors.ENDC)
 
 # ========================== #
