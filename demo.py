@@ -1,6 +1,6 @@
 # =====================================
 # Demo for Zhiyin Xu, Yuzhou Chen, Chenen Jin
-# Planar Pushing Experiments
+# ******ATTENSION:THIS DEMO WILL TAKE 3 MINUTES******
 # =====================================
 # This demo includes the following 8 steps:
 # (1) Push without obstacle - Bayesian Optimization (EI)
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # ============ Coder Credits ============ #
     print(TerminalColors.BOLD + "=====================================" + TerminalColors.ENDC)
     print(TerminalColors.BOLD + "Demo for Zhiyin Xu, Yuzhou Chen, Chenen Jin" + TerminalColors.ENDC)
-    print(TerminalColors.BOLD + "Planar Pushing Experiments" + TerminalColors.ENDC)
+    print(TerminalColors.BOLD + "******ATTENSION:THIS DEMO WILL TAKE 3 MINUTES******" + TerminalColors.ENDC)
     print(TerminalColors.BOLD + "=====================================" + TerminalColors.ENDC)
 
     print(TerminalColors.BOLD + "This demo includes the following 8 steps:" + TerminalColors.ENDC)

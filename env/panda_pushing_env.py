@@ -195,7 +195,7 @@ class PandaPushingEnv(gym.Env):
 
         # 2. Disk detachment check
         if not self._are_disks_attached():
-            print("detached, done with this trajectory")
+            # print("detached, done with this trajectory")
             done = True
 
         return done

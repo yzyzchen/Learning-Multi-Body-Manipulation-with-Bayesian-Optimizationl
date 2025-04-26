@@ -190,7 +190,6 @@ class PandaBoxPushingStudy:
         self._target_state = TARGET_POSE_OBSTACLES if include_obstacle else TARGET_POSE_FREE
         self._opt_type = opt_type
         self.test_params = test_params
-
         param_dict = {}
         param_dict["lower"] = [1e-8, 1e-8, 1e-8, 1e-8]
         param_dict["upper"] = [1, 1, 1, 1]
@@ -230,52 +229,6 @@ class PandaBoxPushingStudy:
     def _compute_cost(self, goal_distance, goal_reached, n_step):
         cost = goal_distance + self._step_scale * n_step + (not goal_reached) * self._goal_scale
         return cost
-
-    # def run(self):
-    #     self._logger.reset()
-    #     target_state = self._target_state.copy()
-    #     if self._opt_type == "test":
-    #         status = 'random' if self._random_target else 'fixed'
-    #         print(f"Testing box pushing optimizer with {status} target for {self._epoch} epochs")
-    #         parameters = self.test_params
-    #         for _ in range(self._epoch):
-
-    #             print("target state: ", target_state)
-    #             end_state, pushing_step = run_pushing_task(self._env, self._controller, self._n_step, target_state, parameters)
-    #             goal_distance = np.linalg.norm(end_state[:2]-target_state[:2]) # evaluate only position, not orientation
-    #             print("goal dist: ", goal_distance)
-    #             goal_reached = goal_distance < self._goal_tol and self._env._are_disks_attached()
-    #             cost = self._compute_cost(goal_distance, goal_reached, pushing_step)
-    #             self._logger.update(cost, pushing_step, goal_distance, goal_reached, parameters)
-    #         optimized_param = parameters
-
-    #     else:
-    #         opt_epoch = self._epoch // 3 if self._opt_type=="cma" else self._epoch
-    #         print(f"Optimizing box pushing using {self._opt_type.upper()} optimizer for {self._epoch} epoches")
-    #         for _ in range(opt_epoch):
-    #             start_time = time()
-    #             parameters = self._optimizer.suggest()
-    #             suggest_time = time() - start_time
-    #             self._logger.update_time(suggest_time)
-    #             # Run trial
-    #             for param in parameters:
-    #                 # if self._random_target:
-    #                 #     target_state = ()
-    #                 end_state, pushing_step = run_pushing_task(self._env, self._controller, self._n_step, target_state, param)
-    #                 goal_distance = np.linalg.norm(end_state[:2]-target_state[:2]) # evaluate only position, not orientation
-                    
-    #                 goal_reached = goal_distance < self._goal_tol and self._env._are_disks_attached()
-    #                 cost = self._compute_cost(goal_distance, goal_reached, pushing_step)
-
-    #                 self._logger.update(cost, pushing_step, goal_distance, goal_reached, param)
-    #                 self._optimizer.register(param, cost)
-
-    #         optimized_param = self._optimizer.get_result()
-    #         self._optimizer.print_result()
-    #         self._logger.save(self._log_dir, optimized_param)
-
-    #     if self._render:
-    #         self._env.disconnect()
 
     def run(self):
         self._logger.reset()
@@ -318,12 +271,6 @@ class PandaBoxPushingStudy:
 
         if self._render:
             self._env.disconnect()
-
-    # def plot_results(self):
-    #     self._logger.plot()
-
-    # def load_logs(self, filename):
-    #     self._logger.load(self._log_dir, filename)
     
     def get_cost_mean_and_var(self):
         mean, var = self._logger.summarize_cost()

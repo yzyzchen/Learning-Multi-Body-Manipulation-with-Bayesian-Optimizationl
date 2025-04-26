@@ -8,6 +8,7 @@ from tqdm import tqdm
 import numpy as np
 import torch
 
+from IPython.display import Image
 from env.panda_pushing_env import PandaPushingEnv
 from optimizer.panda_pushing_optimizer import PandaBoxPushingStudy
 from env.visualizers import GIFVisualizer
@@ -132,12 +133,13 @@ def run_opt_demo_with_model():
     print("\n=== Load the model and run the demo with bayes optimization===")
     
     # Initialize the model and environment
-    test_param_ours_obs = [np.float64(0.137105297951578), np.float64(0.1926368343570713), np.float64(0.5743182937039544), np.float64(0.4428992162255692)] #cma, epoch=50, obstacle
+    test_param_ours_obs = [4.1003036e-04,5.4347056e-01,9.9732959e-01,3.0594563e-01]
     # visualizer.reset()
-    test_free = PandaBoxPushingStudy(epoch=50, render=False, logdir="logs/", 
+    # visualizer = GIFVisualizer()
+    test_free = PandaBoxPushingStudy(epoch=1, render=True, logdir="logs/", 
                                     study_name="test", 
-                                    include_obstacle=False, 
-                                    target_state=np.array([0.9, 0, 0.]),
+                                    include_obstacle=True, 
+                                    target_state=np.array([0.95, -0.1, 0.]),
                                     opt_type="test", 
                                     step_scale=0.1, 
                                     device="cpu",
@@ -150,6 +152,7 @@ def run_opt_demo_with_model():
 
     print("cost_mean", cost_mean)
     print("cost_var", cost_var)
+    # Image(filename=visualizer.get_gif())
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
