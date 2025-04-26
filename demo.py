@@ -56,25 +56,19 @@ def wait_for_enter():
     input()
     user_wants_to_skip = True
 
-def prompt_to_start(task_name, step_number, epoch, wait_seconds=2):
-    global user_wants_to_skip
-    user_wants_to_skip = False
+import sys
+import select
 
+def prompt_to_start(task_name, step_number, epoch, wait_seconds=2):
     print(TerminalColors.OKGREEN + f"Step {step_number}: {task_name} for {epoch} epoch(s)!" + TerminalColors.ENDC)
     print(TerminalColors.OKGREEN + f"Waiting {wait_seconds} seconds... (Press Enter now to SKIP this step!)" + TerminalColors.ENDC)
 
-    input_thread = threading.Thread(target=wait_for_enter)
-    input_thread.daemon = True
-    input_thread.start()
+    print(f"You have {wait_seconds} seconds to press Enter to skip...", flush=True)
 
-    for remaining in range(wait_seconds, 0, -1):
-        if user_wants_to_skip:
-            break
-        print(f"{remaining}...", end=" ", flush=True)
-        time.sleep(1)
-    print()
-
-    if user_wants_to_skip:
+    # Wait for input with timeout
+    i, o, e = select.select([sys.stdin], [], [], wait_seconds)
+    if i:
+        sys.stdin.readline()
         print(TerminalColors.RED + f"Skipping Step {step_number}: {task_name}..." + TerminalColors.ENDC)
         return False
     else:
@@ -88,8 +82,8 @@ def prompt_to_start(task_name, step_number, epoch, wait_seconds=2):
 # ========================== #
 if __name__ == "__main__":
     # Basic settings
-    EPOCH = 1
-    RENDER = True
+    EPOCH = 5
+    RENDER = False
     LOGDIR = "logs/"
     DEVICE = "cpu"
     visualizer = GIFVisualizer()
