@@ -73,7 +73,7 @@ def prompt_to_start(task_name, step_number, epoch, wait_seconds=2):
 # ========================== #
 if __name__ == "__main__":
     # Basic settings
-    EPOCH = 5
+    EPOCH = 1
     RENDER = False
     LOGDIR = "logs/"
     DEVICE = "cpu"
