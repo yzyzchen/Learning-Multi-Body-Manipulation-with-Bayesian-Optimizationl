@@ -4,6 +4,7 @@
 4. train data: 'python multi_dynamic_main.py train --num_epochs 1000'
 5. run trained model and show: 'python multi_dynamic_main.py demo_model --debug'
 6. run trained model with optimized controller: 'python multi_dynamic_main.py opt_demo_model'
+7. run demo: 'python demo.py'
 
 #  Learning Multi-Body Dynamics
 
